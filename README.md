@@ -1,2 +1,2 @@
 # UniPath
-This is the official repository of the paper "UniPath: A Text-prompted Foundation Model for Universal Pathology Segmentation"
+This is the official repository of the paper "Segment Anything in Pathology Images with Natural Language"
