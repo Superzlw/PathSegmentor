@@ -16,40 +16,33 @@ from detectron2.utils.file_io import PathManager
 
 _PREDEFINED_SPLITS_PATHSEG = {}
 
-datasets = ['BCSS', 
-            'TNBC', 
-            'Janowczyk', 
-            'NuCLS', 
-            'CoCaHis',
-            'MoNuSAC2020',
-            'CryoNuSeg',
-            'MoNuSeg',
-            'WSSS4LUAD',
-            'CoNIC2022',
-            'CRAG',
-            'GlaS',
-            'CoNSeP',
-            'DigestPath2019_signe_ring_cell',
-            'DigestPath2019_colonoscopy_tissue_segment',
-            'MIDOG_breast',
-            'MIDOG_neuroendocrine',
-            'rings',
-            'SICAPv2',
-            'PanNuke',
-            'SegPaths'
-            ]   # provide name of the dataset under pathseg_datasets
+# datasets = ['BCSS', 
+#             'TNBC', 
+#             'Janowczyk', 
+#             'NuCLS', 
+#             'CoCaHis',
+#             'MoNuSAC2020',
+#             'WSSS4LUAD',
+#             'CoNIC2022',
+#             'CRAG',
+#             'GlaS',
+#             'DigestPath2019_colonoscopy_tissue_segment',
+#             'MIDOG_neuroendocrine',
+#             'rings',
+#             'SICAPv2',
+#             'PanNuke',
+#             'SegPaths'
+#             ]   # provide name of the dataset under pathseg_datasets
 
-splits = ['train', 'test']    # provide split name, e.g., train, test, val. Here there is only one 'demo' split in the example demo dataset
-
-# datasets = ['BiomedParseData-Demo', ]   # provide name of the dataset under biomedparse_datasets
-# splits = ['demo']    # provide split name, e.g., train, test, val. Here there is only one 'demo' split in the example demo dataset
+datasets = ['Demo']   
+splits = ['train', 'test']    # provide split name, e.g., train, test, val. 
 
 # Here we register all the splits of the dataset
 for name in datasets:
     for split in splits:
         dataname = f'pathseg_{name.replace("/", "-")}_{split}'
         image_root = f"{name}/{split}"
-        ann_root = f"{name}/{split}_new.json" # NOTE: need change when use different annotation file
+        ann_root = f"{name}/{split}.json" # NOTE: need change when use different annotation file
         _PREDEFINED_SPLITS_PATHSEG[dataname] = (image_root, ann_root)
 # The resulting dataset name is: pathseg_BiomedParseData-Demo_demo
 

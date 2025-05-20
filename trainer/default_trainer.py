@@ -76,7 +76,7 @@ class DefaultTrainer(UtilsTrainer, DistributedTrainer):
         else:
             raise ValueError(f"Model not found: {model_path}")
 
-        results = self._eval_on_set('/home/chenzhixuan/Workspace/UniPath_Project/results')
+        results = self._eval_on_set('/home/chenzhixuan/Workspace/PathSegmentor/results')
         return results
 
     def _eval_on_set(self, results_folder):

@@ -231,43 +231,50 @@ ATTENTION_ARCH:
   QUERY_NUMBER: 3 #NOTE
 
 DATASETS:
-  TRAIN: [ #NOTE: Add your registered training datasets here
-    'pathseg_BCSS_train',    
-    'pathseg_TNBC_train',
-    'pathseg_Janowczyk_train',
-    'pathseg_NuCLS_train',
-    'pathseg_CoCaHis_train',
-    'pathseg_MoNuSAC2020_train',
-    'pathseg_WSSS4LUAD_train',
-    'pathseg_CoNIC2022_train',
-    'pathseg_CRAG_train',
-    'pathseg_GlaS_train',
-    'pathseg_DigestPath2019_colonoscopy_tissue_segment_train',
-    'pathseg_MIDOG_neuroendocrine_train',
-    'pathseg_rings_train',
-    'pathseg_SICAPv2_train',
-    'pathseg_PanNuke_train',
-    'pathseg_SegPaths_train',
+  # TRAIN: [ #NOTE: Add your registered training datasets here
+  #   'pathseg_BCSS_train',    
+  #   'pathseg_TNBC_train',
+  #   'pathseg_Janowczyk_train',
+  #   'pathseg_NuCLS_train',
+  #   'pathseg_CoCaHis_train',
+  #   'pathseg_MoNuSAC2020_train',
+  #   'pathseg_WSSS4LUAD_train',
+  #   'pathseg_CoNIC2022_train',
+  #   'pathseg_CRAG_train',
+  #   'pathseg_GlaS_train',
+  #   'pathseg_DigestPath2019_colonoscopy_tissue_segment_train',
+  #   'pathseg_MIDOG_neuroendocrine_train',
+  #   'pathseg_rings_train',
+  #   'pathseg_SICAPv2_train',
+  #   'pathseg_PanNuke_train',
+  #   'pathseg_SegPaths_train',
+  # ]
+  TRAIN: [
+    'pathseg_Demo_train',
   ]
 
 
 
-  TEST:  [ #NOTE: Add your registered test datasets here
-    'pathseg_BCSS_test',    
-    'pathseg_TNBC_test',
-    'pathseg_Janowczyk_test',
-    'pathseg_NuCLS_test',
-    'pathseg_CoCaHis_test',
-    'pathseg_MoNuSAC2020_test',
-    'pathseg_WSSS4LUAD_test',
-    'pathseg_CoNIC2022_test',
-    'pathseg_CRAG_test',
-    'pathseg_GlaS_test',
-    'pathseg_MIDOG_neuroendocrine_test',
-    'pathseg_rings_test',
-    'pathseg_SICAPv2_test',
-    'pathseg_PanNuke_test',
-    'pathseg_SegPaths_test',
+
+  # TEST:  [ #NOTE: Add your registered test datasets here
+  #   'pathseg_BCSS_test',    
+  #   'pathseg_TNBC_test',
+  #   'pathseg_Janowczyk_test',
+  #   'pathseg_NuCLS_test',
+  #   'pathseg_CoCaHis_test',
+  #   'pathseg_MoNuSAC2020_test',
+  #   'pathseg_WSSS4LUAD_test',
+  #   'pathseg_CoNIC2022_test',
+  #   'pathseg_CRAG_test',
+  #   'pathseg_GlaS_test',
+  #   'pathseg_MIDOG_neuroendocrine_test',
+  #   'pathseg_rings_test',
+  #   'pathseg_SICAPv2_test',
+  #   'pathseg_PanNuke_test',
+  #   'pathseg_SegPaths_test',
+  # ]
+  TEST: [
+    'pathseg_Demo_test',
   ]
   
   CLASS_CONCAT: false
