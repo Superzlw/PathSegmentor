@@ -6,7 +6,7 @@ export OMPI_ALLOW_RUN_AS_ROOT=1
 export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 #export WANDB_KEY=YOUR_WANDB_KEY # Provide your wandb key here
 
-cuda_devices="0,1,3,5"
+cuda_devices="1,2"
 bs_per_gpu=1
 nproc_per_node=$(echo $cuda_devices | tr ',' '\n' | wc -l)
 bs_total=$(($bs_per_gpu * $nproc_per_node))
@@ -22,7 +22,7 @@ CUDA_VISIBLE_DEVICES=$cuda_devices mpirun -n $nproc_per_node python entry.py \
             VISUALIZE_FOR_EVAL False \
             FP16 True \
             RANDOM_SEED 2024 \
-            BioMed.INPUT.IMAGE_SIZE 1024 \
+            PathSeg.INPUT.IMAGE_SIZE 1024 \
             MODEL.DECODER.HIDDEN_DIM 512 \
             MODEL.ENCODER.CONVS_DIM 512 \
             MODEL.ENCODER.MASK_DIM 512 \

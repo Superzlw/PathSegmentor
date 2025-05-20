@@ -1,1 +1,1 @@
-from .biomed_dataset_mapper import BioMedDatasetMapper
+from .pathseg_dataset_mapper import PathSegDatasetMapper

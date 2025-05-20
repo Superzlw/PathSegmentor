@@ -8,13 +8,13 @@
 # Define Test/Trainer/Saving
 PIPELINE: XDecoderPipeline
 TRAINER: xdecoder
-SAVE_DIR: '/jhcnas5/chenzhixuan/checkpoints/BiomedParse/outputs'
+SAVE_DIR: '/jhcnas5/chenzhixuan/checkpoints/PathSegmentor/outputs'
 base_path: "./"
 
 # Resume Logistic
 RESUME: false
 WEIGHT: True
-RESUME_FROM: '/jhcnas5/chenzhixuan/checkpoints/BiomedParse/biomedparse_v1.pt'
+RESUME_FROM: '/jhcnas5/chenzhixuan/MyOpenSource/huggingface/PathSegmentor/model_state_dict.pt'
 EVAL_AT_START: False
 SAVE_CHECKPOINT: True
 
@@ -232,53 +232,42 @@ ATTENTION_ARCH:
 
 DATASETS:
   TRAIN: [ #NOTE: Add your registered training datasets here
-    # 'biomed_BCSS_train',    
-    # 'biomed_TNBC_train',
-    # 'biomed_Janowczyk_train',
-    # 'biomed_NuCLS_train',
-    # 'biomed_CoCaHis_train',
-    # 'biomed_MoNuSAC2020_train',
-    'biomed_CryoNuSeg_train',
-    # 'biomed_MoNuSeg_train',
-    # 'biomed_WSSS4LUAD_train',
-    # 'biomed_CoNIC2022_train',
-    # 'biomed_CRAG_train',
-    # 'biomed_GlaS_train',
-    # 'biomed_CoNSeP_train',
-    # 'biomed_DigestPath2019_signe_ring_cell_train',
-    # 'biomed_DigestPath2019_colonoscopy_tissue_segment_train',
-    # 'biomed_MIDOG_breast_train',
-    # 'biomed_MIDOG_neuroendocrine_train',
-    # 'biomed_rings_train',
-    # 'biomed_SICAPv2_train',
-    # 'biomed_PanNuke_train',
-    # 'biomed_SegPaths_train',
+    'pathseg_BCSS_train',    
+    'pathseg_TNBC_train',
+    'pathseg_Janowczyk_train',
+    'pathseg_NuCLS_train',
+    'pathseg_CoCaHis_train',
+    'pathseg_MoNuSAC2020_train',
+    'pathseg_WSSS4LUAD_train',
+    'pathseg_CoNIC2022_train',
+    'pathseg_CRAG_train',
+    'pathseg_GlaS_train',
+    'pathseg_DigestPath2019_colonoscopy_tissue_segment_train',
+    'pathseg_MIDOG_neuroendocrine_train',
+    'pathseg_rings_train',
+    'pathseg_SICAPv2_train',
+    'pathseg_PanNuke_train',
+    'pathseg_SegPaths_train',
   ]
 
 
 
   TEST:  [ #NOTE: Add your registered test datasets here
-    'biomed_BCSS_test',    
-    'biomed_TNBC_test',
-    'biomed_Janowczyk_test',
-    'biomed_NuCLS_test',
-    'biomed_CoCaHis_test',
-    'biomed_MoNuSAC2020_test',
-    'biomed_CryoNuSeg_test',
-    'biomed_MoNuSeg_test',
-    'biomed_WSSS4LUAD_test',
-    'biomed_CoNIC2022_test',
-    'biomed_CRAG_test',
-    'biomed_GlaS_test',
-    'biomed_CoNSeP_test',
-    'biomed_DigestPath2019_signe_ring_cell_test',
-    'biomed_DigestPath2019_colonoscopy_tissue_segment_test',
-    'biomed_MIDOG_breast_test',
-    'biomed_MIDOG_neuroendocrine_test',
-    'biomed_rings_test',
-    'biomed_SICAPv2_test',
-    'biomed_PanNuke_test',
-    'biomed_SegPaths_test',
+    'pathseg_BCSS_test',    
+    'pathseg_TNBC_test',
+    'pathseg_Janowczyk_test',
+    'pathseg_NuCLS_test',
+    'pathseg_CoCaHis_test',
+    'pathseg_MoNuSAC2020_test',
+    'pathseg_WSSS4LUAD_test',
+    'pathseg_CoNIC2022_test',
+    'pathseg_CRAG_test',
+    'pathseg_GlaS_test',
+    'pathseg_MIDOG_neuroendocrine_test',
+    'pathseg_rings_test',
+    'pathseg_SICAPv2_test',
+    'pathseg_PanNuke_test',
+    'pathseg_SegPaths_test',
   ]
   
   CLASS_CONCAT: false
@@ -313,11 +302,11 @@ DATALOADER:
   ASPECT_RATIO_GROUPING: True
 
 
-BioMed:
+PathSeg:
   INPUT:
     PIXEL_MEAN: [64.284, 59.293, 59.962]
     PIXEL_STD: [62.484, 60.865, 59.835]
-    DATASET_MAPPER_NAME: "biomed_interactive"
+    DATASET_MAPPER_NAME: "pathseg_interactive"
     MIN_SIZE_TRAIN: 900
     MAX_SIZE_TRAIN: 1100
     MIN_SIZE_TRAIN_SAMPLING: 'choice'
@@ -337,7 +326,7 @@ BioMed:
     CROP:
       ENABLED: True
   DATASET: 
-    DATASET: "biomed"
+    DATASET: "pathseg"
 
 
 # Detectron2 training config for optimizer and lr scheduler

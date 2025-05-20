@@ -14,7 +14,7 @@ from detectron2.data.datasets.builtin_meta import COCO_CATEGORIES
 from detectron2.utils.file_io import PathManager
 
 
-_PREDEFINED_SPLITS_BIOMED = {}
+_PREDEFINED_SPLITS_PATHSEG = {}
 
 datasets = ['BCSS', 
             'TNBC', 
@@ -37,7 +37,7 @@ datasets = ['BCSS',
             'SICAPv2',
             'PanNuke',
             'SegPaths'
-            ]   # provide name of the dataset under biomedparse_datasets
+            ]   # provide name of the dataset under pathseg_datasets
 
 splits = ['train', 'test']    # provide split name, e.g., train, test, val. Here there is only one 'demo' split in the example demo dataset
 
@@ -47,11 +47,11 @@ splits = ['train', 'test']    # provide split name, e.g., train, test, val. Here
 # Here we register all the splits of the dataset
 for name in datasets:
     for split in splits:
-        dataname = f'biomed_{name.replace("/", "-")}_{split}'
+        dataname = f'pathseg_{name.replace("/", "-")}_{split}'
         image_root = f"{name}/{split}"
         ann_root = f"{name}/{split}_new.json" # NOTE: need change when use different annotation file
-        _PREDEFINED_SPLITS_BIOMED[dataname] = (image_root, ann_root)
-# The resulting dataset name is: biomed_BiomedParseData-Demo_demo
+        _PREDEFINED_SPLITS_PATHSEG[dataname] = (image_root, ann_root)
+# The resulting dataset name is: pathseg_BiomedParseData-Demo_demo
 
 # # Add your dataset here
 # datasets = ['YOUR_DATASET_NAME', ]   # provide name of the dataset under biomedparse_datasets
@@ -72,7 +72,7 @@ def get_metadata():
     return meta
 
 
-def load_biomed_json(image_root, annot_json, metadata):
+def load_pathseg_json(image_root, annot_json, metadata):
     """
     Args:
         image_dir (str): path to the raw dataset. e.g., "~/coco/train2017".
@@ -114,11 +114,11 @@ def load_biomed_json(image_root, annot_json, metadata):
     return ret
 
 
-def register_biomed(
+def register_pathseg(
     name, metadata, image_root, annot_json):
     DatasetCatalog.register(
         name,
-        lambda: load_biomed_json(image_root, annot_json, metadata),
+        lambda: load_pathseg_json(image_root, annot_json, metadata),
     )
     MetadataCatalog.get(name).set(
         image_root=image_root,
@@ -130,12 +130,12 @@ def register_biomed(
     )
 
 
-def register_all_biomed(root):
+def register_all_pathseg(root):
     for (
         prefix,
         (image_root, annot_root),
-    ) in _PREDEFINED_SPLITS_BIOMED.items():
-        register_biomed(
+    ) in _PREDEFINED_SPLITS_PATHSEG.items():
+        register_pathseg(
             prefix,
             get_metadata(),
             os.path.join(root, image_root),
@@ -144,4 +144,4 @@ def register_all_biomed(root):
 
 
 _root = os.getenv("DATASET", "datasets")
-register_all_biomed(_root)
+register_all_pathseg(_root)

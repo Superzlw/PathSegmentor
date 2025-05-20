@@ -1,3 +1,3 @@
 from . import (
-    register_biomed_datasets
+    register_pathseg_datasets
 )

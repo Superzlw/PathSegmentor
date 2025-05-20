@@ -25,7 +25,7 @@ from modeling.utils import configurable
 
 from ..visual_sampler.sampler import build_shape_sampler
 
-__all__ = ["BioMedDatasetMapper"]
+__all__ = ["PathSegDatasetMapper"]
 
 
 def build_transform_gen(cfg, is_train):
@@ -89,7 +89,7 @@ def convert_coco_poly_to_mask(segmentations, height, width):
     return masks
 
 # This is specifically designed for the COCO dataset.
-class BioMedDatasetMapper:
+class PathSegDatasetMapper:
     """
     A callable which takes a dataset dict in Detectron2 Dataset format,
     and map it into a format used by MaskFormer.
@@ -337,12 +337,10 @@ class BioMedDatasetMapper:
                     texts_grd = ['none']
                     hash_grd = np.array([hash(txt) for txt in texts_grd])
                 else:
-                    biomed_classes = ['liver', 'lung', 'kidney', 'pancreas', 'heart anatomies', 'brain anatomies', 
-                                      'eye anatomies', 'vessel', 'other organ', 'tumor', 'infection', 'other lesion', 
-                                      'fluid disturbance', 'other abnormality', 'histology structure', 'other']
+                    pathseg_classes = ['multiple', 'breast', 'liver', 'lung', 'prostate', 'colon', 'adrenal gland', 'bile duct', 'bladder', 'cervix', 'esophagus', 'head neck', 'kidney', 'ovarian', 'pancreatic', 'skin', 'stomach', 'testis', 'thyroid', 'uterus']
                     if self.binary_classes:
-                        biomed_classes = ['target']
-                    texts_grd = np.array(biomed_classes)
+                        pathseg_classes = ['target']
+                    texts_grd = np.array(pathseg_classes)
                     hash_grd = np.array([hash(txt) for txt in texts_grd])
                     unique_hash_grd = np.unique(hash_grd)
                     np.random.shuffle(unique_hash_grd)

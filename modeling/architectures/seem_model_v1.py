@@ -26,7 +26,7 @@ from ..modules import sem_seg_postprocess, SetCriterion, HungarianMatcher, bbox_
 from ..language import build_language_encoder
 from ..language.loss import vl_similarity
 from utilities.prompt_engineering import prompt_engineering
-from utilities.constants import COCO_PANOPTIC_CLASSES, BIOMED_CLASSES
+from utilities.constants import COCO_PANOPTIC_CLASSES, PATHSEG_CLASSES
 
 
 class GeneralizedSEEM(nn.Module):
@@ -1158,7 +1158,7 @@ class GeneralizedSEEM(nn.Module):
                 padded_masks[:, : gt_masks.shape[1], : gt_masks.shape[2]] = gt_masks
 
                 # convert class into concept name and then token seq
-                self.sem_seg_head.predictor.lang_encoder.get_text_embeddings([BIOMED_CLASSES[clss]], name='grounding')
+                self.sem_seg_head.predictor.lang_encoder.get_text_embeddings([PATHSEG_CLASSES[clss]], name='grounding')
                 query = getattr(self.sem_seg_head.predictor.lang_encoder, 'grounding_text_embeddings')
 
                 new_targets.append(

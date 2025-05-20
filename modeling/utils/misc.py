@@ -181,8 +181,8 @@ def get_class_names(name):
         return None
     elif 'refcoco' in name:
         return ["background"]
-    elif 'biomed' in name:
-        return BIOMED_CLASSES + ["background"] 
+    elif 'pathseg' in name:
+        return PATHSEG_CLASSES + ["background"] 
     elif 'med_sam' in name:
         ### MedSAM class names
         medsam_classes = ['liver', 'lung', 'pancreas', 'stomach', 'heart', 'gallbladder', 'prostate', 'brain ventricles', 'cerebellum',

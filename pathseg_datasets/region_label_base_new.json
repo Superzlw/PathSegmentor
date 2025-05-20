@@ -1,0 +1,277 @@
+{
+    "0": {
+        "parent": "multiple",
+        "child": [
+            "multiple tissue epithelial",
+            "multiple tissue smooth muscle cells",
+            "multiple cell epithelial",
+            "multiple cell lymphocyte",
+            "multiple cell macrophage",
+            "multiple cell neutrophil",
+            "multiple cell endothelial",
+            "multiple cell leukocytes",
+            "multiple cell myeloid cells",
+            "multiple cell plasma cells",
+            "multiple cell red blood cells",
+            "multiple nuclei nuclei",
+            "multiple cell signet ring cell",
+            "multiple nuclei neuroendocrine tumor Mitotic Figure",
+            "multiple nuclei neuroendocrine tumor Non Mitotic Figure"
+        ]
+    },
+
+    "1": {
+        "parent": "breast",
+        "child": [
+            "breast tissue tumor",
+            "breast tissue stroma",
+            "breast tissue lymphocytic infiltrate",
+            "breast tissue necrosis or debris",
+            "breast tissue glandular secretions",
+            "breast tissue blood",
+            "breast tissue metaplasia NOS",
+            "breast tissue fat",
+            "breast tissue plasma cells",
+            "breast tissue other immune infiltrate",
+            "breast tissue mucoid material",
+            "breast tissue normal acinus or duct",
+            "breast tissue lymphatics",
+            "breast tissue nerve",
+            "breast tissue skin adnexa",
+            "breast tissue blood vessel",
+            "breast tissue angioinvasion",
+            "breast tissue dcis",
+            "breast cell cancerous",
+            "breast cell lymphocyte plasmocyte",
+            "breast cell fibroblast",
+            "breast cell endothelial",
+            "breast cell epithelial",
+            "breast cell adipocyte",
+            "breast cell mitosis",
+            "breast cell myo epithelial",
+            "breast cell glial",
+            "breast cell neuron",
+            "breast cell necrosis",
+            "breast nuclei nuclei",
+            "breast nuclei tumor",
+            "breast nuclei apoptotic body",
+            "breast nuclei mitotic figure",
+            "breast nuclei lymphocyte",
+            "breast nuclei fibroblast",
+            "breast nuclei plasma cell",
+            "breast nuclei macrophage",
+            "breast nuclei vascular endothelium",
+            "breast nuclei myoepithelium",
+            "breast nuclei ductal epithelium",
+            "breast nuclei neutrophil",
+            "breast nuclei eosinophil",
+            "breast nuclei breast cancer Mitotic Figure",
+            "breast nuclei breast cancer Non Mitotic Figure",
+            "breast nuclei connective",
+            "breast nuclei dead",
+            "breast nuclei epithelial",
+            "breast nuclei inflammatory",
+            "breast nuclei neoplastic"
+        ]
+    },
+
+    "2": {
+        "parent": "liver",
+        "child": [
+            "liver tissue metastatic colon cancer in a liver",
+            "liver nuclei connective",
+            "liver nuclei dead",
+            "liver nuclei epithelial",
+            "liver nuclei inflammatory",
+            "liver nuclei neoplastic"
+        ]
+    },
+    
+    "3": {
+        "parent": "lung",
+        "child": [
+            "lung tissue tumor epithelial tissue",
+            "lung tissue tumor associated stroma tissue",
+            "lung tissue normal tissue",
+            "lung nuclei connective",
+            "lung nuclei dead",
+            "lung nuclei inflammatory",
+            "lung nuclei neoplastic"
+        ]
+    },
+    "4": {
+        "parent": "prostate",
+        "child": [
+            "prostate tissue prostate tumor",
+            "prostate tissue prostate healthy glands",
+            "prostate tissue prostate cancer",
+            "prostate nuclei connective",
+            "prostate nuclei epithelial",
+            "prostate nuclei inflammatory",
+            "prostate nuclei neoplastic"
+        ]
+    },
+    "5": {
+        "parent": "colon",
+        "child": [
+            "colon nuclei neutrophil",
+            "colon nuclei epithelial",
+            "colon nuclei lymphocyte",
+            "colon nuclei plasma",
+            "colon nuclei eosinophil",
+            "colon nuclei connective",
+            "colon tissue gland",
+            "colon cell inflammatory",
+            "colon cell healthy epithelial",
+            "colon cell dysplastic malignant epithelial",
+            "colon cell fibroblast",
+            "colon cell muscle",
+            "colon cell endothelial",
+            "colon tissue malignant lesion",
+            "colon nuclei dead",
+            "colon nuclei inflammatory",
+            "colon nuclei neoplastic"
+        ]
+    },
+    "6": {
+        "parent": "adrenal gland",
+        "child": [
+            "adrenal gland nuclei connective",
+            "adrenal gland nuclei dead",
+            "adrenal gland nuclei epithelial",
+            "adrenal gland nuclei inflammatory",
+            "adrenal gland nuclei neoplastic"
+        ]
+    },
+    "7": {
+        "parent": "bile duct",
+        "child": [
+            "bile duct nuclei connective",
+            "bile duct nuclei dead",
+            "bile duct nuclei epithelial",
+            "bile duct nuclei inflammatory",
+            "bile duct nuclei neoplastic"
+        ]
+    },
+    "8": {
+        "parent": "bladder",
+        "child": [
+            "bladder nuclei connective",
+            "bladder nuclei epithelial",
+            "bladder nuclei inflammatory",
+            "bladder nuclei neoplastic"
+        ]
+    },
+    "9": {
+        "parent": "cervix",
+        "child": [
+            "cervix nuclei connective",
+            "cervix nuclei dead",
+            "cervix nuclei epithelial",
+            "cervix nuclei inflammatory",
+            "cervix nuclei neoplastic"
+        ]
+    },
+    "10": {
+        "parent": "esophagus",
+        "child": [
+            "esophagus nuclei connective",
+            "esophagus nuclei dead",
+            "esophagus nuclei epithelial",
+            "esophagus nuclei inflammatory",
+            "esophagus nuclei neoplastic"
+        ]
+    },
+    "11": {
+        "parent": "head neck",
+        "child": [
+            "head neck nuclei connective",
+            "head neck nuclei dead",
+            "head neck nuclei epithelial",
+            "head neck nuclei inflammatory",
+            "head neck nuclei neoplastic"
+        ]
+    },
+    "12": {
+        "parent": "kidney",
+        "child": [
+            "kidney nuclei connective",
+            "kidney nuclei epithelial",
+            "kidney nuclei inflammatory",
+            "kidney nuclei neoplastic"
+        ]
+    },
+    "13": {
+        "parent": "ovarian",
+        "child": [
+            "ovarian nuclei connective",
+            "ovarian nuclei epithelial",
+            "ovarian nuclei inflammatory",
+            "ovarian nuclei neoplastic"
+        ]
+    },
+    "14": {
+        "parent": "pancreatic",
+        "child": [
+            "pancreatic nuclei connective",
+            "pancreatic nuclei epithelial",
+            "pancreatic nuclei inflammatory",
+            "pancreatic nuclei neoplastic"
+        ]
+    },
+    "15": {
+        "parent": "skin",
+        "child": [
+            "skin nuclei connective",
+            "skin nuclei epithelial",
+            "skin nuclei inflammatory",
+            "skin nuclei neoplastic"
+        ]
+    },
+    "16": {
+        "parent": "stomach",
+        "child": [
+            "stomach nuclei connective",
+            "stomach nuclei dead",
+            "stomach nuclei inflammatory",
+            "stomach nuclei neoplastic"
+        ]
+    },
+    "17": {
+        "parent": "testis",
+        "child": [
+            "testis nuclei connective",
+            "testis nuclei epithelial",
+            "testis nuclei inflammatory",
+            "testis nuclei neoplastic"
+        ]
+    },
+    "18": {
+        "parent": "thyroid",
+        "child": [
+            "thyroid nuclei connective",
+            "thyroid nuclei dead",
+            "thyroid nuclei epithelial",
+            "thyroid nuclei inflammatory",
+            "thyroid nuclei neoplastic"
+        ]
+    },
+
+    "19": {
+        "parent": "uterus",
+        "child": [
+            "uterus nuclei connective",
+            "uterus nuclei dead",
+            "uterus nuclei epithelial",
+            "uterus nuclei inflammatory",
+            "uterus nuclei neoplastic"
+        ]
+    },
+
+    "20": {
+    "parent": "background",
+    "child": [
+        "background"
+    ]
+  }
+}

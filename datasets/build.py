@@ -428,8 +428,8 @@ def get_config_from_name(cfg, dataset_name):
     elif 'med_sam' in dataset_name:
         cfg.update(cfg['MedSAM'])
         return cfg
-    elif 'biomed' in dataset_name:
-        cfg.update(cfg['BioMed'])
+    elif 'pathseg' in dataset_name:
+        cfg.update(cfg['PathSeg'])
         return cfg
     elif 'sam' in dataset_name:
         cfg.update(cfg['SAM'])
@@ -461,8 +461,8 @@ def build_eval_dataloader(cfg, ):
             mapper = RefCOCODatasetMapper(cfg, False)
         elif 'med_sam' in dataset_name:
             mapper = MedSAMDatasetMapper(cfg, False) 
-        elif 'biomed' in dataset_name:
-            mapper = BioMedDatasetMapper(cfg, False)     
+        elif 'pathseg' in dataset_name:
+            mapper = PathSegDatasetMapper(cfg, False)     
         else:
             mapper = None
         dataloaders += [build_detection_test_loader(cfg, dataset_name, mapper=mapper)]
@@ -508,8 +508,8 @@ def build_train_dataloader(cfg, ):
         elif mapper_name == "medsam_interactive":
             mapper = MedSAMDatasetMapper(cfg, True)
             loaders['med_sam'] = build_detection_train_loader(cfg, dataset_name=dataset_name, mapper=mapper)   
-        elif mapper_name == "biomed_interactive":
-            mapper = BioMedDatasetMapper(cfg, True)
+        elif mapper_name == "pathseg_interactive":
+            mapper = PathSegDatasetMapper(cfg, True)
             name_key = dataset_name.split("_")[1]
             loaders[name_key] = build_detection_train_loader(cfg, dataset_name=dataset_name, mapper=mapper)     
         else:

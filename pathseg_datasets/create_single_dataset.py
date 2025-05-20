@@ -7,8 +7,8 @@ from create_annotations import *
 
 image_size = 1024
 
-# Load Biomed Label Base
-with open('/home/chenzhixuan/Workspace/BiomedParse/biomedparse_datasets/region_label_base.json', 'r') as f:
+# Load PathSeg Label Base
+with open('/home/chenzhixuan/Workspace/PathSegmentor/pathseg_datasets/region_label_base_new.json', 'r') as f:
     label_base = json.load(f)
 
 # Get parent class for the names
@@ -41,6 +41,8 @@ def images_annotations_info(maskpath):
 
         mod = file_name.split('.')[0].split('_')[-2]
         site = file_name.split('.')[0].split('_')[-1]
+        site = site.replace("+", " ")
+        site = site.replace("-", " ")
 
         task = {'target': target, 'modality': mod, 'site': site}
         if 'T1' in mod or 'T2' in mod or 'FLAIR' in mod or 'ADC' in mod:
@@ -72,6 +74,8 @@ def images_annotations_info(maskpath):
     for mask_image in tqdm(glob.glob(maskpath + "*.png")):
         filename_parsed = os.path.basename(mask_image).split("_")
         site = filename_parsed[-2]
+        site = site.replace("+", " ")
+        site = site.replace("-", " ")
         target_name = filename_parsed[-1].split(".")[0].replace("+", " ")
 
         original_file_name = "_".join(filename_parsed[:-1]) + ".png"
@@ -129,7 +133,7 @@ if __name__ == "__main__":
             if im["file_name"] not in images_with_ann:
                 coco_format['images'].remove(im)
 
-        with open(os.path.join(targetpath, f"{keyword}.json"), "w") as outfile:
+        with open(os.path.join(targetpath, f"{keyword}_new.json"), "w") as outfile:
             json.dump(coco_format, outfile)
 
         print(f"Created {annotation_cnt} annotations for {len(coco_format['images'])} images in folder: {mask_path}")

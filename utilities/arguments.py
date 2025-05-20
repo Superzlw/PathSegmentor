@@ -50,7 +50,7 @@ def load_opt_from_config_files(conf_files):
 def load_opt_command(args):
     parser = argparse.ArgumentParser(description='Pretrain or fine-tune models for NLP tasks.')
     parser.add_argument('--command', default='evaluate', help='Command: train/evaluate/train-and-evaluate')
-    parser.add_argument('--conf_files', default=["/home/chenzhixuan/Workspace/BiomedParse/configs/biomed_seg_lang_v1.yaml"], nargs='+', help='Path(s) to the config file(s).')
+    parser.add_argument('--conf_files', default=["/home/chenzhixuan/Workspace/PathSegmentor/configs/pathsegmentor.yaml"], nargs='+', help='Path(s) to the config file(s).')
     parser.add_argument('--user_dir', help='Path to the user defined module for tasks (models, criteria), optimizers, and lr schedulers.')
     parser.add_argument('--config_overrides', nargs='*', help='Override parameters on config with a json style string, e.g. {"<PARAM_NAME_1>": <PARAM_VALUE_1>, "<PARAM_GROUP_2>.<PARAM_SUBGROUP_2>.<PARAM_2>": <PARAM_VALUE_2>}. A key with "." updates the object in the corresponding nested dict. Remember to escape " in command line.')
     parser.add_argument('--overrides', help='arguments that used to override the config file in cmdline', nargs=argparse.REMAINDER)
