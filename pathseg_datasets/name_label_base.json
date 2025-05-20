@@ -1,0 +1,488 @@
+{
+    "0": {
+        "parent": "breast tissue tumor",
+        "child": [
+            "breast tissue tumor"
+        ]
+    },
+    "1": {
+        "parent": "breast tissue stroma",
+        "child": [
+            "breast tissue stroma"
+        ]
+    },
+    "2": {
+        "parent": "breast tissue lymphocytic infiltrate",
+        "child": [
+            "breast tissue lymphocytic infiltrate"
+        ]
+    },
+    "3": {
+        "parent": "breast tissue necrosis or debris",
+        "child": [
+            "breast tissue necrosis or debris"
+        ]
+    },
+    "4": {
+        "parent": "breast tissue glandular secretions",
+        "child": [
+            "breast tissue glandular secretions"
+        ]
+    },
+    "5": {
+        "parent": "breast tissue blood",
+        "child": [
+            "breast tissue blood"
+        ]
+    },
+    "6": {
+        "parent": "breast tissue metaplasia NOS",
+        "child": [
+            "breast tissue metaplasia NOS"
+        ]
+    },
+    "7": {
+        "parent": "breast tissue fat",
+        "child": [
+            "breast tissue fat"
+        ]
+    },
+    "8": {
+        "parent": "breast tissue plasma cells",
+        "child": [
+            "breast tissue plasma cells"
+        ]
+    },
+    "9": {
+        "parent": "breast tissue other immune infiltrate",
+        "child": [
+            "breast tissue other immune infiltrate"
+        ]
+    },
+    "10": {
+        "parent": "breast tissue mucoid material",
+        "child": [
+            "breast tissue mucoid material"
+        ]
+    },
+    "11": {
+        "parent": "breast tissue normal acinus or duct",
+        "child": [
+            "breast tissue normal acinus or duct"
+        ]
+    },
+    "12": {
+        "parent": "breast tissue lymphatics",
+        "child": [
+            "breast tissue lymphatics"
+        ]
+    },
+    "13": {
+        "parent": "breast tissue nerve",
+        "child": [
+            "breast tissue nerve"
+        ]
+    },
+    "14": {
+        "parent": "breast tissue skin adnexa",
+        "child": [
+            "breast tissue skin adnexa"
+        ]
+    },
+    "15": {
+        "parent": "breast tissue blood vessel",
+        "child": [
+            "breast tissue blood vessel"
+        ]
+    },
+    "16": {
+        "parent": "breast tissue angioinvasion",
+        "child": [
+            "breast tissue angioinvasion"
+        ]
+    },
+    "17": {
+        "parent": "breast tissue dcis",
+        "child": [
+            "breast tissue dcis"
+        ]
+    },
+    "18": {
+        "parent": "breast cell cancerous",
+        "child": [
+            "breast cell cancerous"
+        ]
+    },
+    "19": {
+        "parent": "breast cell lymphocyte plasmocyte",
+        "child": [
+            "breast cell lymphocyte plasmocyte"
+        ]
+    },
+    "20": {
+        "parent": "breast cell fibroblast",
+        "child": [
+            "breast cell fibroblast"
+        ]
+    },
+    "21": {
+        "parent": "breast cell endothelial",
+        "child": [
+            "breast cell endothelial"
+        ]
+    },
+    "22": {
+        "parent": "breast cell epithelial",
+        "child": [
+            "breast cell epithelial"
+        ]
+    },
+    "23": {
+        "parent": "breast cell adipocyte",
+        "child": [
+            "breast cell adipocyte"
+        ]
+    },
+    "24": {
+        "parent": "breast cell mitosis",
+        "child": [
+            "breast cell mitosis"
+        ]
+    },
+    "25": {
+        "parent": "breast cell myo epithelial",
+        "child": [
+            "breast cell myo epithelial"
+        ]
+    },
+    "26": {
+        "parent": "breast cell glial",
+        "child": [
+            "breast cell glial"
+        ]
+    },
+    "27": {
+        "parent": "breast cell neuron",
+        "child": [
+            "breast cell neuron"
+        ]
+    },
+    "28": {
+        "parent": "breast cell necrosis",
+        "child": [
+            "breast cell necrosis"
+        ]
+    },
+    "29": {
+        "parent": "breast nuclei nuclei",
+        "child": [
+            "breast nuclei nuclei"
+        ]
+    },
+    "30": {
+        "parent": "breast nuclei tumor",
+        "child": [
+            "breast nuclei tumor"
+        ]
+    },
+    "31": {
+        "parent": "breast nuclei apoptotic body",
+        "child": [
+            "breast nuclei apoptotic body"
+        ]
+    },
+    "32": {
+        "parent": "breast nuclei mitotic figure",
+        "child": [
+            "breast nuclei mitotic figure"
+        ]
+    },
+    "33": {
+        "parent": "breast nuclei lymphocyte",
+        "child": [
+            "breast nuclei lymphocyte"
+        ]
+    },
+    "34": {
+        "parent": "breast nuclei fibroblast",
+        "child": [
+            "breast nuclei fibroblast"
+        ]
+    },
+    "35": {
+        "parent": "breast nuclei plasma cell",
+        "child": [
+            "breast nuclei plasma cell"
+        ]
+    },
+    "36": {
+        "parent": "breast nuclei macrophage",
+        "child": [
+            "breast nuclei macrophage"
+        ]
+    },
+    "37": {
+        "parent": "breast nuclei vascular endothelium",
+        "child": [
+            "breast nuclei vascular endothelium"
+        ]
+    },
+    "38": {
+        "parent": "breast nuclei myoepithelium",
+        "child": [
+            "breast nuclei myoepithelium"
+        ]
+    },
+    "39": {
+        "parent": "breast nuclei ductal epithelium",
+        "child": [
+            "breast nuclei ductal epithelium"
+        ]
+    },
+    "40": {
+        "parent": "breast nuclei neutrophil",
+        "child": [
+            "breast nuclei neutrophil"
+        ]
+    },
+    "41": {
+        "parent": "breast nuclei eosinophil",
+        "child": [
+            "breast nuclei eosinophil"
+        ]
+    },
+    "42": {
+        "parent": "breast nuclei breast cancer Mitotic Figure",
+        "child": [
+            "breast nuclei breast cancer Mitotic Figure"
+        ]
+    },
+    "43": {
+        "parent": "breast nuclei breast cancer Non Mitotic Figure",
+        "child": [
+            "breast nuclei breast cancer Non Mitotic Figure"
+        ]
+    },
+    "44": {
+        "parent": "liver tissue metastatic colon cancer in a liver",
+        "child": [
+            "liver tissue metastatic colon cancer in a liver"
+        ]
+    },
+    "45": {
+        "parent": "multiple tissue epithelial",
+        "child": [
+            "multiple tissue epithelial"
+        ]
+    },
+    "46": {
+        "parent": "multiple tissue smooth muscle cells",
+        "child": [
+            "multiple tissue smooth muscle cells"
+        ]
+    },
+    "47": {
+        "parent": "multiple cell epithelial",
+        "child": [
+            "multiple cell epithelial"
+        ]
+    },
+    "48": {
+        "parent": "multiple cell lymphocyte",
+        "child": [
+            "multiple cell lymphocyte"
+        ]
+    },
+    "49": {
+        "parent": "multiple cell macrophage",
+        "child": [
+            "multiple cell macrophage"
+        ]
+    },
+    "50": {
+        "parent": "multiple cell neutrophil",
+        "child": [
+            "multiple cell neutrophil"
+        ]
+    },
+    "51": {
+        "parent": "multiple cell endothelial",
+        "child": [
+            "multiple cell endothelial"
+        ]
+    },
+    "52": {
+        "parent": "multiple cell leukocytes",
+        "child": [
+            "multiple cell leukocytes"
+        ]
+    },
+    "53": {
+        "parent": "multiple cell myeloid cells",
+        "child": [
+            "multiple cell myeloid cells"
+        ]
+    },
+    "54": {
+        "parent": "multiple cell plasma cells",
+        "child": [
+            "multiple cell plasma cells"
+        ]
+    },
+    "55": {
+        "parent": "multiple cell red blood cells",
+        "child": [
+            "multiple cell red blood cells"
+        ]
+    },
+    "56": {
+        "parent": "multiple nuclei nuclei",
+        "child": [
+            "multiple nuclei nuclei"
+        ]
+    },
+    "57": {
+        "parent": "multiple cell signet ring cell",
+        "child": [
+            "multiple cell signet ring cell"
+        ]
+    },
+    "58": {
+        "parent": "multiple nuclei neuroendocrine tumor Mitotic Figure",
+        "child": [
+            "multiple nuclei neuroendocrine tumor Mitotic Figure"
+        ]
+    },
+    "59": {
+        "parent": "multiple nuclei neuroendocrine tumor Non Mitotic Figure",
+        "child": [
+            "multiple nuclei neuroendocrine tumor Non Mitotic Figure"
+        ]
+    },
+    "60": {
+        "parent": "lung tissue tumor epithelial tissue",
+        "child": [
+            "lung tissue tumor epithelial tissue"
+        ]
+    },
+    "61": {
+        "parent": "lung tissue tumor associated stroma tissue",
+        "child": [
+            "lung tissue tumor associated stroma tissue"
+        ]
+    },
+    "62": {
+        "parent": "lung tissue normal tissue",
+        "child": [
+            "lung tissue normal tissue"
+        ]
+    },
+    "63": {
+        "parent": "prostate tissue prostate tumor",
+        "child": [
+            "prostate tissue prostate tumor"
+        ]
+    },
+    "64": {
+        "parent": "prostate tissue prostate healthy glands",
+        "child": [
+            "prostate tissue prostate healthy glands"
+        ]
+    },
+    "65": {
+        "parent": "prostate tissue prostate cancer",
+        "child": [
+            "prostate tissue prostate cancer"
+        ]
+    },
+    "66": {
+        "parent": "colon nuclei neutrophil",
+        "child": [
+            "colon nuclei neutrophil"
+        ]
+    },
+    "67": {
+        "parent": "colon nuclei epithelial",
+        "child": [
+            "colon nuclei epithelial"
+        ]
+    },
+    "68": {
+        "parent": "colon nuclei lymphocyte",
+        "child": [
+            "colon nuclei lymphocyte"
+        ]
+    },
+    "69": {
+        "parent": "colon nuclei plasma",
+        "child": [
+            "colon nuclei plasma"
+        ]
+    },
+    "70": {
+        "parent": "colon nuclei eosinophil",
+        "child": [
+            "colon nuclei eosinophil"
+        ]
+    },
+    "71": {
+        "parent": "colon nuclei connective",
+        "child": [
+            "colon nuclei connective"
+        ]
+    },
+    "72": {
+        "parent": "colon tissue gland",
+        "child": [
+            "colon tissue gland"
+        ]
+    },
+    "73": {
+        "parent": "colon cell inflammatory",
+        "child": [
+            "colon cell inflammatory"
+        ]
+    },
+    "74": {
+        "parent": "colon cell healthy epithelial",
+        "child": [
+            "colon cell healthy epithelial"
+        ]
+    },
+    "75": {
+        "parent": "colon cell dysplastic malignant epithelial",
+        "child": [
+            "colon cell dysplastic malignant epithelial"
+        ]
+    },
+    "76": {
+        "parent": "colon cell fibroblast",
+        "child": [
+            "colon cell fibroblast"
+        ]
+    },
+    "77": {
+        "parent": "colon cell muscle",
+        "child": [
+            "colon cell muscle"
+        ]
+    },
+    "78": {
+        "parent": "colon cell endothelial",
+        "child": [
+            "colon cell endothelial"
+        ]
+    },
+    "79": {
+        "parent": "colon tissue malignant lesion",
+        "child": [
+            "colon tissue malignant lesion"
+        ]
+    },
+    "80": {
+        "parent": "background",
+        "child": [
+            "background"
+        ]
+    }
+}
