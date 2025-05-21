@@ -1,7 +1,11 @@
-# PathSegmentor
+<!-- # PathSegmentor -->
+![header](https://capsule-render.vercel.app/api?type=waving&height=200&color=gradient&text=PathSegmentor&reversal=false&textBg=false&animation=fadeIn&fontAlign=26&section=header&fontAlignY=35&fontSize=50)
 This repository hosts the official implementation of the research paper titled *"Segment Anything in Pathology Images with Natural Language".* It provides code, models, and resources to support natural language-guided semantic segmentation in pathology imaging.
 
-# Installation
+<!-- [![Arxiv Page](https://img.shields.io/badge/Arxiv-2407.18449-red?style=flat-square)](https://arxiv.org/abs/2407.18449) -->
+<!-- [![GitHub Stars](https://img.shields.io/github/stars/zhi-xuan-chen/PathSegmentor?style=social)](https://github.com/zhi-xuan-chen/PathSegmentor) -->
+
+# 🛠 Installation
 To set up the environment, run the following command:
 ```bash
 git clone https://github.com/zhi-xuan-chen/PathSegmentor
@@ -10,40 +14,38 @@ conda activate pathsegmentor
 pip install -r requirements.txt
 ```
 
-# PathSeg Dataset
+# 🗂️ PathSeg Dataset
 
-PathSeg dataset was constructed from preprocessing publicly available pathology image segmentation datasets. For the source datasets, please check the details here: [PathSeg Dataset](assets/readmes/Dataset.md). 
+The PathSeg dataset was created by preprocessing publicly available pathology image segmentation datasets. For details on the source datasets, please refer to the corresponding documentation: [PathSeg Dataset](assets/readmes/Dataset.md).
 
-To provide a general impression of the dataset, we showcase a subset of PathSeg dataset in [PathSeg-Demo](pathseg_datasets/Demo). You can train and evaluate the model on this dataset to understand how the code works. You may also create your own dataset by following the organizational structure of the demo dataset. 
+To give a general overview of the dataset, we provide a sample subset in the `pathseg_datasets/Demo` directory. You can use this subset to train and evaluate the model, helping you understand how the code functions. Additionally, you may create your own dataset by following the same organizational structure as the `Demo` dataset and fine-tune PathSegmentor on it. Detailed instructions can be found in the [Fine-tuning](#fine-tuning-your-pathsegmentor) section.
 
-Detailed instructions can be found in the [Fine-tuning](#fine-tuning) section.
-
-# PathSegmentor Checkpoints
-You can download the pre-trained PathSegmentor checkpoints from the following Google Drive link: [PathSegmentor Checkpoints](https://drive.google.com/drive/folders/1HxFdA9KXfS6CKgMX-i6TEVfflHiO5Tmf?usp=sharing).
+# 💾 PathSegmentor Checkpoints
+You can download the pre-trained PathSegmentor checkpoints from this Google Drive link: [PathSegmentor Checkpoints](https://drive.google.com/drive/folders/1HxFdA9KXfS6CKgMX-i6TEVfflHiO5Tmf?usp=sharing).
  
-# How to Use PathSegmentor 
-We have pipelined the inference process using our pre-trained PathSegmentor in the [inference notebook](inference_examples.ipynb). You can directly perform inference on the example images located in the `examples` directory. 
+# 🚀 How to Use PathSegmentor
+The inference workflow using our pre-trained PathSegmentor has been streamlined in the [inference notebook](inference_examples.ipynb). You can directly run inference on sample images provided in the `examples` directory.
 
-Remember to change the checkpoint path `pretrained_pth` in the notebook according your environment configuration.  
+>💡 **Note**: Remember to change the checkpoint path `pretrained_pth` in the notebook according to your environment configuration.
 
-We provide four types of examples in the examples directory: `1_irregular`, `2_tiny`, `3_dense`, and `4_others`. These directories may contain further subcategories, but each final-level folder always includes two files: an image and a mask.
+We provide four types of examples in the `examples` directory: `1_irregular`, `2_tiny`, `3_dense`, and `4_others`. These directories may contain further subcategories, but each final-level folder always includes two files: an image and a mask.
 
 To run inference on a specific image, simply replace the `image_path` and `mask_path` variables in the notebook with the paths to your chosen image and mask files.
 
 The `text_prompt` used for segmentation can be derived from the end of the mask filename. For example, the mask file named `Part_2_1211_pathology_bile+duct_nuclei+connective.png` corresponds to the prompt:
 “nuclei-level connective in bile duct pathology”.
 
-> **Note:** Be sure to remove any `+` signs when constructing the prompt.
+>💡 **Note:** Remove any `+` signs when constructing the prompt.
 
 Now, run each cell in the notebook. A figure containing the image, predicted mask, and ground truth (GT) mask will be generated at the end, allowing you to compare the results.
 
-# Fine-tuning Your PathSegmentor
-If you want to fine-tune PathSegmentor on your own dataset, refer to these instructions to organize your data according to PathSegmentor’s requirements and begin fine-tuning.
+# 🔧 Fine-tuning Your PathSegmentor
+To fine-tune PathSegmentor on your own dataset, follow the instructions below to organize your data according to the required format and begin the fine-tuning process.
 
-## Dataset Organization
+## 📁 Dataset Organization
 Before you begin, please create a folder named `pathseg_datasets` in a directory with sufficient storage space. This folder will be used to store the preprocessed datasets required by PathSegmentor.
 
-The structure of each dataset within this directory is organized as follows:
+The structure of each dataset within `pathseg_datasets` is organized as follows:
 <pre>
 pathseg_datasets  
 ├── [DATASET_NAME]  
@@ -54,13 +56,13 @@ pathseg_datasets
 </pre>
 The `train` and `train_mask` folders contain the images and corresponding mask files used for training, while the `test` and `test_mask` folders hold the images and mask files used for testing.
 
-The [PathSeg-Demo](pathseg_datasets/Demo) provides a clear example demonstrating how a dataset with [DATASET_NAME] set to `Demo` should be organized.
+The `pathseg_datasets/Demo` directory serves as a clear example of how to properly structure a dataset named `Demo`.
 
-## Preprocessing Dataset
+## ⚙️ Preprocessing Dataset
 ### Image Processing
-PathSegmentor takes as input `1024×1024` images cropped from whole slide images (WSIs) at `40x` magnification. Therefore, please downsample or upsample your WSIs to `40x` and crop them into `1024×1024` patches. Depending on their designated split, save the images into the `train` or `test` folders accordingly.
+PathSegmentor requires `1024×1024` image patches extracted from whole slide images (WSIs) at `40x` magnification. Therefore, ensure your WSIs are scaled to `40x`, then crop them into `1024×1024` patches. Save the resulting images into either the `train` or `test` directories based on their designated split.
 
-Note that image names must be formatted according to the following requirements:
+Please ensure that image filenames adhere to the following format:
 ```
 [IMAGE-NAME]_pathology_[REGION].png
 ```
@@ -69,30 +71,30 @@ Here, `[IMAGE-NAME]` refers to a unique identifier for each image, while `[REGIO
 ### Mask Processing
 Each image can have multiple binary mask files of the same size (1024×1024), with each mask representing a distinct object within the image. In these masks, pixels with a value of 1 indicate the foreground region.
 
-The mask filenames follow a similar format but include additional fields:
+The mask filenames follow a similar format but include an additional field:
 ```
 [IMAGE-NAME]_pathology_[REGION]_[OBJECT].png
 ```
-The initial part of the mask filename matches its corresponding image. The `[OBJECT]` segment specifies which object within the image the mask represents. In `[OBJECT]`, spaces are replaced with `+` signs for easier parsing. The first component of `[OBJECT]` indicates the histological structure the object belongs to. For example, `nuclei+neoplastic` refers to a `neoplastic` object within the `nuclei` structure.
+The initial part of the mask filename matches its corresponding image. The `[OBJECT]` segment indicates the specific object depicted by the mask within the image. In `[OBJECT]`, spaces are replaced with `+` signs for easier parsing. The first component of `[OBJECT]` indicates the histological structure the object belongs to. For example, `nuclei+neoplastic` refers to a `neoplastic` object belonging to the `nuclei` structure.
 
-## Generating Dataset Info JSON
-After preparing the preprocessed image and mask files, you can generate the dataset info JSON file, which is used for both training and testing.
+## 📝 Generating Dataset Info JSON
+After preparing the preprocessed image and mask files, you can generate the dataset info JSON files, which are used for both training and testing.
 
-You can generate the JSON file for a single dataset by running the following command:
+You can generate the JSON files for a single dataset by running the following command:
 ```
 cd pathseg_datasets
 python create_single_dataset.py
 ```
-> **Note:** Be sure to set the `targetpath` parameter to the path of your dataset.
+>💡 **Note:** Be sure to set the `targetpath` parameter to the path of your dataset.
 
 If you have multiple datasets that require JSON file generation, run the following command:
 ```
 cd pathseg_datasets
 python create_multiple_dataset.py
 ```
-Similarly, make sure to update the `dataset_paths` list with the paths to your datasets.
+Similarly, make sure to update the `dataset_paths` list with the paths to all your datasets.
 
-After the JSON files generation, your dataset directory will look like this:
+After the JSON files are generated, your dataset directory will look like this:
 <pre>
 pathseg_datasets  
 ├── [DATASET_NAME]  
@@ -104,26 +106,25 @@ pathseg_datasets
 │   └── test.json  
 </pre>
 
-## Register Dataset
+## 📋 Register Dataset
 To use these datasets, you need to register them appropriately. Open the file [register_pathseg_datasets.py](datasets/registration/register_pathseg_datasets.py), and add your `[DATASET_NAME]` to the `datasets` list. The training dataset will be registered as `pathseg_[DATASET_NAME]_train`, and the testing dataset as `pathseg_[DATASET_NAME]_test`.
 
-Finally, add these dataset names to the configuration file [pathsegmentor.yaml](configs/pathsegmentor.yaml), around line 233.
-> **Note:** Only the registered datasets in the configuration file will be used.
+Finally, add these registered dataset to the configuration file [pathsegmentor.yaml](configs/pathsegmentor.yaml), around line 233.
 
 Once completed, your datasets will be ready for training and evaluation.
 
-## Training
-You can start trainig by runing:
+## 💪 Training
+You can start training by running the following command:
 ```
 bash scripts/train.sh
 ```
 You may modify the `SAVE_DIR` and `RESUME_FROM` variables in [pathsegmentor.yaml](configs/pathsegmentor.yaml) as needed. These variables specify the output path for training checkpoints and the path to the pre-trained checkpoint, respectively.
 
-## Evaluation
-After training, evaluate your fine-tuned PathSegmentor by running:
+## 🧪 Evaluation
+After completing training, you can evaluate your fine-tuned PathSegmentor on your dataset's test set by running:
 ```
 bash scripts/eval.sh
 ```
-You can modify the output results path in [default_trainer.py](trainer/default_trainer.py), around line 79. This is where the result JSON files will be saved.
+You can customize the output directory for result JSON files in [default_trainer.py](trainer/default_trainer.py), around line 79.
 
 # Citation
