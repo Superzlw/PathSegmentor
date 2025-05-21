@@ -253,9 +253,6 @@ DATASETS:
     'pathseg_Demo_train',
   ]
 
-
-
-
   # TEST:  [ #NOTE: Add your registered test datasets here
   #   'pathseg_BCSS_test',    
   #   'pathseg_TNBC_test',
