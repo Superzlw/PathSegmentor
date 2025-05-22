@@ -1,5 +1,5 @@
 <!-- # PathSegmentor -->
-![header](https://capsule-render.vercel.app/api?type=waving&height=180&color=gradient&text=PathSegmentor&reversal=false&desc=Segment%20Anything%20in%20Pathology%20Images%20with%20Natural%20Language&fontSize=40&fontAlign=19&fontAlignY=22&descSize=28&descAlignY=47&descAlign=47)
+[![header](https://capsule-render.vercel.app/api?type=waving&height=180&color=gradient&text=PathSegmentor&reversal=false&desc=Segment%20Anything%20in%20Pathology%20Images%20with%20Natural%20Language&fontSize=40&fontAlign=19&fontAlignY=22&descSize=28&descAlignY=47&descAlign=47)](https://arxiv.org/abs/2407.18449)
 [![Arxiv Page](https://img.shields.io/badge/Arxiv-2407.18449-red?style=flat-square)](https://arxiv.org/abs/2407.18449)
 <!-- [![GitHub Stars](https://img.shields.io/github/stars/zhi-xuan-chen/PathSegmentor?style=social)](https://github.com/zhi-xuan-chen/PathSegmentor) -->
 ---
