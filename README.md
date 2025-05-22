@@ -1,5 +1,5 @@
 <!-- # PathSegmentor -->
-![header](https://capsule-render.vercel.app/api?type=waving&height=200&color=gradient&text=PathSegmentor&reversal=false&textBg=false&animation=fadeIn&fontAlign=26&section=header&fontAlignY=35&fontSize=50)
+![header](https://capsule-render.vercel.app/api?type=waving&height=200&color=gradient&text=PathSegmentor&desc=Segment%20Anything%20in%20Pathology%20Images%20with%20Natural%20Language&descAlignY=52&descSize=30&fontAlignY=28&fontSize=45&fontAlign=21)
 
 This repository hosts the official implementation of the research paper titled *"Segment Anything in Pathology Images with Natural Language".* It provides code, models, and resources to support natural language-guided semantic segmentation in pathology imaging.
 
