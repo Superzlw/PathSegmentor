@@ -1,10 +1,11 @@
 <!-- # PathSegmentor -->
 ![header](https://capsule-render.vercel.app/api?type=waving&height=200&color=gradient&text=PathSegmentor&desc=Segment%20Anything%20in%20Pathology%20Images%20with%20Natural%20Language&descAlignY=52&descSize=30&fontAlignY=28&fontSize=45&fontAlign=21)
-
+[![Arxiv Page](https://img.shields.io/badge/Arxiv-2407.18449-red?style=flat-square)](https://arxiv.org/abs/2407.18449)
+<!-- [![GitHub Stars](https://img.shields.io/github/stars/zhi-xuan-chen/PathSegmentor?style=social)](https://github.com/zhi-xuan-chen/PathSegmentor) -->
+---
 This repository hosts the official implementation of the research paper titled *"Segment Anything in Pathology Images with Natural Language".* It provides code, models, and resources to support natural language-guided semantic segmentation in pathology imaging.
 
-<!-- [![Arxiv Page](https://img.shields.io/badge/Arxiv-2407.18449-red?style=flat-square)](https://arxiv.org/abs/2407.18449) -->
-<!-- [![GitHub Stars](https://img.shields.io/github/stars/zhi-xuan-chen/PathSegmentor?style=social)](https://github.com/zhi-xuan-chen/PathSegmentor) -->
+
 
 # 🛠 Installation
 To set up the environment, run the following command:
