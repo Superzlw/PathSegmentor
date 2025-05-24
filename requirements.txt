@@ -30,12 +30,10 @@ contourpy==1.3.0
 cycler==0.12.1
 Cython==3.0.2
 deepspeed==0.10.3
-detectron2 @ git+https://github.com/MaureenZOU/detectron2-xyz.git@42121d75e10d9f858f3a91b6a39f5722c02868f0
 diffdist==0.1
 dill==0.3.9
 docker-pycreds==0.4.0
 docopt==0.6.2
--e git+https://github.com/zhaoziheng/SAT.git@ab2792b10efdd4e488129303bcb67812802ce050#egg=dynamic_network_architectures&subdirectory=model/dynamic-network-architectures-main
 einops==0.6.1
 et_xmlfile==2.0.0
 eval_type_backport==0.2.0
@@ -99,7 +97,7 @@ nibabel==4.0.2
 ninja==1.11.1.1
 nltk==3.8.1
 numba==0.60.0
-numpy==1.23.1
+numpy
 nvidia-cublas-cu12==12.1.3.1
 nvidia-cuda-cupti-cu12==12.1.105
 nvidia-cuda-nvrtc-cu12==12.1.105
@@ -145,7 +143,6 @@ pyquaternion==0.9.9
 PySocks==1.7.1
 python-box==7.2.0
 python-multipart==0.0.9
-pytorch-lightning==2.0.2
 pytz==2024.1
 pyvips==2.2.3
 PyWavelets==1.6.0
@@ -188,10 +185,6 @@ timm==0.9.8
 tokenizers==0.14.1
 toml==0.10.2
 topk @ git+https://github.com/oval-group/smooth-topk.git@12c1645f187e2fa0c05f47bf1fe48864d4bd2707
-torch==2.1.0
-torchinfo==1.8.0
-torchmetrics==0.11.4
-torchvision==0.16.0
 tqdm==4.66.5
 traceback2==1.4.0
 transformers==4.34.1

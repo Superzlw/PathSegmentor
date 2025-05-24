@@ -6,16 +6,36 @@
 ---
 This repository hosts the official implementation of the research paper titled *"Segment Anything in Pathology Images with Natural Language".* It provides code, models, and resources to support natural language-guided semantic segmentation in pathology imaging.
 
+# 🛠 Environment Setup
+First, create and activate a Conda environment with Python 3.9.18:
 
-
-# 🛠 Installation
-To set up the environment, run the following command:
 ```bash
-git clone https://github.com/zhi-xuan-chen/PathSegmentor
 conda create -n pathsegmentor python=3.9.18
 conda activate pathsegmentor
+```
+
+Install PyTorch matching your CUDA version from [here](https://pytorch.org/get-started/locally/). For basic setups:
+```bash
+pip3 install torch torchvision
+```
+
+Clone the repository and install dependencies:
+```bash
+git clone https://github.com/zhi-xuan-chen/PathSegmentor
+cd PathSegmentor
 pip install -r requirements.txt
 ```
+
+Install MPI support for distributed training:
+```bash
+conda install -c conda-forge mpi4py openmpi
+```
+
+Finally, install the custom Detectron2 version:
+```bash
+pip install git+https://github.com/MaureenZOU/detectron2-xyz.git
+```
+
 
 # 🗂️ PathSeg Dataset
 
@@ -84,14 +104,14 @@ The initial part of the mask filename matches its corresponding image. The `[OBJ
 After preparing the preprocessed image and mask files, you can generate the dataset info JSON files, which are used for both training and testing.
 
 You can generate the JSON files for a single dataset by running the following command:
-```
+```bash
 cd pathseg_datasets
 python create_single_dataset.py
 ```
 >💡 **Note:** Be sure to set the `targetpath` parameter to the path of your dataset.
 
 If you have multiple datasets that require JSON file generation, run the following command:
-```
+```bash
 cd pathseg_datasets
 python create_multiple_dataset.py
 ```
@@ -118,14 +138,14 @@ Once completed, your datasets will be ready for training and evaluation.
 
 ## 💪 Training
 You can start training by running the following command:
-```
+```bash
 bash scripts/train.sh
 ```
 You may modify the `SAVE_DIR` and `RESUME_FROM` variables in [pathsegmentor.yaml](configs/pathsegmentor.yaml) as needed. These variables specify the output path for training checkpoints and the path to the pre-trained checkpoint, respectively.
 
 ## 🧪 Evaluation
 After completing training, you can evaluate your fine-tuned PathSegmentor on your dataset's test set by running:
-```
+```bash
 bash scripts/eval.sh
 ```
 You can customize the output directory for result JSON files in [default_trainer.py](trainer/default_trainer.py), around line 79.
