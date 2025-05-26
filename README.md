@@ -19,9 +19,9 @@ Install PyTorch matching your CUDA version from [here](https://pytorch.org/get-s
 pip3 install torch torchvision
 ```
 
-Clone the repository and install dependencies:
+Download the repository and install dependencies:
+<!-- git clone https://github.com/zhi-xuan-chen/PathSegmentor -->
 ```bash
-git clone https://github.com/zhi-xuan-chen/PathSegmentor
 cd PathSegmentor
 pip install -r requirements.txt
 ```

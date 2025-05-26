@@ -6,7 +6,7 @@ export OMPI_ALLOW_RUN_AS_ROOT=1
 export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 #export WANDB_KEY=YOUR_WANDB_KEY # Provide your wandb key here
 
-cuda_devices="1,2"
+cuda_devices="0"
 bs_per_gpu=1
 nproc_per_node=$(echo $cuda_devices | tr ',' '\n' | wc -l)
 bs_total=$(($bs_per_gpu * $nproc_per_node))
