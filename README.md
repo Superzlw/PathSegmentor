@@ -115,7 +115,7 @@ If you have multiple datasets that require JSON file generation, run the followi
 cd pathseg_datasets
 python create_multiple_dataset.py
 ```
-Similarly, make sure to update the `dataset_paths` list with the paths to all your datasets.
+>💡 **Note:** Similarly, make sure to update the `dataset_paths` list with the paths to all your datasets.
 
 After the JSON files are generated, your dataset directory will look like this:
 <pre>
@@ -141,13 +141,13 @@ You can start training by running the following command:
 ```bash
 bash scripts/train.sh
 ```
-You may modify the `SAVE_DIR` and `RESUME_FROM` variables in [pathsegmentor.yaml](configs/pathsegmentor.yaml) as needed. These variables specify the output path for training checkpoints and the path to the pre-trained checkpoint, respectively.
+>💡 **Note:** You may modify the `SAVE_DIR` and `RESUME_FROM` variables in [pathsegmentor.yaml](configs/pathsegmentor.yaml) as needed. These variables specify the output path for training checkpoints and the path to the pre-trained checkpoint, respectively.
 
 ## 🧪 Evaluation
 After completing training, you can evaluate your fine-tuned PathSegmentor on your dataset's test set by running:
 ```bash
 bash scripts/eval.sh
 ```
-You can customize the output directory for result JSON files in [default_trainer.py](trainer/default_trainer.py), around line 79.
+>💡 **Note:** You can customize the output directory for result JSON files in [default_trainer.py](trainer/default_trainer.py), around line 79.
 
 # Citation

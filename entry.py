@@ -26,7 +26,9 @@ logger = logging.getLogger(__name__)
 # # 设置可见的GPU
 # os.environ['CUDA_VISIBLE_DEVICES'] = '2,4'  # 这里设置为可用的GPU编号
 
-def init_wandb(args, job_dir, entity='zchenhi', project='BiomedPath', job_name='default'):
+# To enable Weights & Biases (wandb) logging, set WANDB=True in train.sh,
+# and update the init_wandb() function with your own account and project details.
+def init_wandb(args, job_dir, entity='zchenhi', project='PathSegmentor', job_name='demo'):
     wandb_dir = os.path.join(job_dir, 'wandb')
     os.makedirs(wandb_dir, exist_ok=True)
     runid = None

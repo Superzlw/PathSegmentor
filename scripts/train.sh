@@ -17,7 +17,7 @@ CUDA_VISIBLE_DEVICES=$cuda_devices mpirun -n $nproc_per_node python entry.py \
             --conf_files configs/pathsegmentor.yaml \
             --overrides \
             PORT '36877' \
-            WANDB True \
+            WANDB False \
             EVAL_AT_START False \
             VISUALIZE_FOR_EVAL False \
             FP16 True \
