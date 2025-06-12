@@ -9,6 +9,7 @@ from torchvision import transforms
 # from detectron2.structures import BitMasks
 from modeling.language.loss import vl_similarity
 from utilities.constants import PATHSEG_CLASSES
+from inference_utils.utils import format_string
 #from detectron2.data.datasets.builtin_meta import COCO_CATEGORIES
 
 import cv2
@@ -43,6 +44,9 @@ def interactive_infer_image(model, image, prompts, all=False):
     height = image_ori.size[1]
     image_ori = np.asarray(image_ori)
     image = torch.from_numpy(image_ori.copy()).permute(2,0,1).cuda()
+
+    # 格式化text prompt
+    prompts = [format_string(prompt) for prompt in prompts]
 
     data = {"image": image, 'text': prompts, "height": height, "width": width}
     

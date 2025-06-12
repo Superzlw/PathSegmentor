@@ -1,22 +1,22 @@
 {
     "0": {
-        "parent": "multiple",
+        "parent": "unspecified",
         "child": [
-            "multiple tissue epithelial",
-            "multiple tissue smooth muscle cells",
-            "multiple cell epithelial",
-            "multiple cell lymphocyte",
-            "multiple cell macrophage",
-            "multiple cell neutrophil",
-            "multiple cell endothelial",
-            "multiple cell leukocytes",
-            "multiple cell myeloid cells",
-            "multiple cell plasma cells",
-            "multiple cell red blood cells",
-            "multiple nuclei nuclei",
-            "multiple cell signet ring cell",
-            "multiple nuclei neuroendocrine tumor Mitotic Figure",
-            "multiple nuclei neuroendocrine tumor Non Mitotic Figure"
+            "unspecified tissue epithelial",
+            "unspecified tissue smooth muscle cells",
+            "unspecified cell epithelial",
+            "unspecified cell lymphocyte",
+            "unspecified cell macrophage",
+            "unspecified cell neutrophil",
+            "unspecified cell endothelial",
+            "unspecified cell leukocytes",
+            "unspecified cell myeloid cells",
+            "unspecified cell plasma cells",
+            "unspecified cell red blood cells",
+            "unspecified nuclei nuclei",
+            "unspecified cell signet ring cell",
+            "unspecified nuclei neuroendocrine tumor Mitotic Figure",
+            "unspecified nuclei neuroendocrine tumor Non Mitotic Figure"
         ]
     },
 
