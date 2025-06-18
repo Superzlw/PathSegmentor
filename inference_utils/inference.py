@@ -36,7 +36,7 @@ from .output_processing import mask_stats, combine_masks
     
 
 @torch.no_grad()
-def interactive_infer_image(model, image, prompts, all=False):
+def interactive_infer_image(model, image, prompts):
 
     image_ori = transform(image)
     #mask_ori = image['mask']
@@ -71,10 +71,8 @@ def interactive_infer_image(model, image, prompts, all=False):
     out_prob = vl_similarity(v_emb, t_emb, temperature=temperature)
     
     matched_id = out_prob.max(0)[1]
-    if all:
-        pred_masks_pos = torch.max(pred_masks, dim=0).values[None,]
-    else:
-        pred_masks_pos = pred_masks[matched_id,:,:]
+    pred_masks_pos = pred_masks[matched_id,:,:]
+    
     pred_class = results['pred_logits'][0][matched_id].max(dim=-1)[1]
 
     # interpolate mask to ori size
