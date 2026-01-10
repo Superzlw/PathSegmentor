@@ -1,0 +1,161 @@
+Hierarchical Semantic Labels,Anatomical Regions,Histological Structures 61 Object Types,Object Types,Prompt
+Unspecified-Cell-Endothelial,Unspecified,Cell,Endothelial,cell-level endothelial in unspecified pathology
+Unspecified-Cell-Epithelial,Unspecified,Cell,Epithelial,cell-level epithelial in unspecified pathology
+Unspecified-Cell-Leukocytes,Unspecified,Cell,Leukocytes,cell-level leukocytes in unspecified pathology
+Unspecified-Cell-Lymphocyte,Unspecified,Cell,Lymphocyte,cell-level lymphocyte in unspecified pathology
+Unspecified-Cell-Macrophage,Unspecified,Cell,Macrophage,cell-level macrophage in unspecified pathology
+Unspecified-Cell-Myeloid cells,Unspecified,Cell,Myeloid cells,cell-level myeloid cells in unspecified pathology
+Unspecified-Cell-Neutrophil,Unspecified,Cell,Neutrophil,cell-level neutrophil in unspecified pathology
+Unspecified-Cell-Plasma cells,Unspecified,Cell,Plasma cells,cell-level plasma cells in unspecified pathology
+Unspecified-Cell-Red blood cells,Unspecified,Cell,Red blood cells,cell-level red blood cells in unspecified pathology
+Unspecified-Nuclei-Neuroendocrine tumor mitotic figure,Unspecified,Nuclei,Neuroendocrine tumor mitotic figure,nuclei-level neuroendocrine tumor mitotic figure in unspecified pathology
+Unspecified-Nuclei-Neuroendocrine tumor non mitotic figure,Unspecified,Nuclei,Neuroendocrine tumor non mitotic figure,nuclei-level neuroendocrine tumor non mitotic figure in unspecified pathology
+Unspecified-Tissue-Epithelial,Unspecified,Tissue,Epithelial,tissue-level epithelial in unspecified pathology
+Unspecified-Tissue-Smooth muscle cells,Unspecified,Tissue,Smooth muscle cells,tissue-level smooth muscle cells in unspecified pathology
+Prostate-Nuclei-Connective,Prostate,Nuclei,Connective,nuclei-level connective in prostate pathology
+Prostate-Nuclei-Epithelial,Prostate,Nuclei,Epithelial,nuclei-level epithelial in prostate pathology
+Prostate-Nuclei-Inflammatory,Prostate,Nuclei,Inflammatory,nuclei-level inflammatory in prostate pathology
+Prostate-Nuclei-Neoplastic,Prostate,Nuclei,Neoplastic,nuclei-level neoplastic in prostate pathology
+Prostate-Tissue-Prostate cancer,Prostate,Tissue,Prostate cancer,tissue-level prostate cancer in prostate pathology
+Prostate-Tissue-Prostate healthy glands,Prostate,Tissue,Prostate healthy glands,tissue-level prostate healthy glands in prostate pathology
+Prostate-Tissue-Prostate tumor,Prostate,Tissue,Prostate tumor,tissue-level prostate tumor in prostate pathology
+Colon-Cell-Dysplastic/malignant epithelial,Colon,Cell,Dysplastic/malignant epithelial,cell-level dysplastic/malignant epithelial in colon pathology
+Colon-Cell-Endothelial,Colon,Cell,Endothelial,cell-level endothelial in colon pathology
+Colon-Cell-Fibroblast,Colon,Cell,Fibroblast,cell-level fibroblast in colon pathology
+Colon-Cell-Healthy epithelial,Colon,Cell,Healthy epithelial,cell-level healthy epithelial in colon pathology
+Colon-Cell-Inflammatory,Colon,Cell,Inflammatory,cell-level inflammatory in colon pathology
+Colon-Cell-Muscle,Colon,Cell,Muscle,cell-level muscle in colon pathology
+Colon-Nuclei-Connective,Colon,Nuclei,Connective,nuclei-level connective in colon pathology
+Colon-Nuclei-Dead,Colon,Nuclei,Dead,nuclei-level dead in colon pathology
+Colon-Nuclei-Eosinophil,Colon,Nuclei,Eosinophil,nuclei-level eosinophil in colon pathology
+Colon-Nuclei-Epithelial,Colon,Nuclei,Epithelial,nuclei-level epithelial in colon pathology
+Colon-Nuclei-Inflammatory,Colon,Nuclei,Inflammatory,nuclei-level inflammatory in colon pathology
+Colon-Nuclei-Lymphocyte,Colon,Nuclei,Lymphocyte,nuclei-level lymphocyte in colon pathology
+Colon-Nuclei-Neoplastic,Colon,Nuclei,Neoplastic,nuclei-level neoplastic in colon pathology
+Colon-Nuclei-Neutrophil,Colon,Nuclei,Neutrophil,nuclei-level neutrophil in colon pathology
+Colon-Nuclei-Plasma cells,Colon,Nuclei,Plasma cells,nuclei-level plasma cells in colon pathology
+Colon-Tissue-Gland,Colon,Tissue,Gland,tissue-level gland in colon pathology
+Colon-Tissue-Malignant lesion,Colon,Tissue,Malignant lesion,tissue-level malignant lesion in colon pathology
+Breast-Cell-Adipocyte,Breast,Cell,Adipocyte,cell-level adipocyte in breast pathology
+Breast-Cell-Cancerous,Breast,Cell,Cancerous,cell-level cancerous in breast pathology
+Breast-Cell-Endothelial,Breast,Cell,Endothelial,cell-level endothelial in breast pathology
+Breast-Cell-Epithelial,Breast,Cell,Epithelial,cell-level epithelial in breast pathology
+Breast-Cell-Fibroblast,Breast,Cell,Fibroblast,cell-level fibroblast in breast pathology
+Breast-Cell-Glial,Breast,Cell,Glial,cell-level glial in breast pathology
+Breast-Cell-Lymphocyte/plasmocyte,Breast,Cell,Lymphocyte/plasmocyte,cell-level lymphocyte/plasmocyte in breast pathology
+Breast-Cell-Mitosis,Breast,Cell,Mitosis,cell-level mitosis in breast pathology
+Breast-Cell-Myo epithelial,Breast,Cell,Myo epithelial,cell-level myo epithelial in breast pathology
+Breast-Cell-Necrosis,Breast,Cell,Necrosis,cell-level necrosis in breast pathology
+Breast-Cell-Neuron,Breast,Cell,Neuron,cell-level neuron in breast pathology
+Breast-Nuclei-Apoptotic body,Breast,Nuclei,Apoptotic body,nuclei-level apoptotic body in breast pathology
+Breast-Nuclei-Connective,Breast,Nuclei,Connective,nuclei-level connective in breast pathology
+Breast-Nuclei-Dead,Breast,Nuclei,Dead,nuclei-level dead in breast pathology
+Breast-Nuclei-Ductal epithelium,Breast,Nuclei,Ductal epithelium,nuclei-level ductal epithelium in breast pathology
+Breast-Nuclei-Eosinophil,Breast,Nuclei,Eosinophil,nuclei-level eosinophil in breast pathology
+Breast-Nuclei-Epithelial,Breast,Nuclei,Epithelial,nuclei-level epithelial in breast pathology
+Breast-Nuclei-Fibroblast,Breast,Nuclei,Fibroblast,nuclei-level fibroblast in breast pathology
+Breast-Nuclei-Inflammatory,Breast,Nuclei,Inflammatory,nuclei-level inflammatory in breast pathology
+Breast-Nuclei-Lymphocyte,Breast,Nuclei,Lymphocyte,nuclei-level lymphocyte in breast pathology
+Breast-Nuclei-Macrophage,Breast,Nuclei,Macrophage,nuclei-level macrophage in breast pathology
+Breast-Nuclei-Mitotic figure,Breast,Nuclei,Mitotic figure,nuclei-level mitotic figure in breast pathology
+Breast-Nuclei-Myoepithelium,Breast,Nuclei,Myoepithelium,nuclei-level myoepithelium in breast pathology
+Breast-Nuclei-Neoplastic,Breast,Nuclei,Neoplastic,nuclei-level neoplastic in breast pathology
+Breast-Nuclei-Neutrophil,Breast,Nuclei,Neutrophil,nuclei-level neutrophil in breast pathology
+Breast-Nuclei-Nuclei,Breast,Nuclei,Nuclei,nuclei-level nuclei in breast pathology
+Breast-Nuclei-Plasma cells,Breast,Nuclei,Plasma cells,nuclei-level plasma cells in breast pathology
+Breast-Nuclei-Tumor,Breast,Nuclei,Tumor,nuclei-level tumor in breast pathology
+Breast-Nuclei-Vascular endothelium,Breast,Nuclei,Vascular endothelium,nuclei-level vascular endothelium in breast pathology
+Breast-Tissue-Angioinvasion,Breast,Tissue,Angioinvasion,tissue-level angioinvasion in breast pathology
+Breast-Tissue-Blood,Breast,Tissue,Blood,tissue-level blood in breast pathology
+Breast-Tissue-Blood vessel,Breast,Tissue,Blood vessel,tissue-level blood vessel in breast pathology
+Breast-Tissue-Dcis,Breast,Tissue,Dcis,tissue-level dcis in breast pathology
+Breast-Tissue-Fat,Breast,Tissue,Fat,tissue-level fat in breast pathology
+Breast-Tissue-Glandular secretions,Breast,Tissue,Glandular secretions,tissue-level glandular secretions in breast pathology
+Breast-Tissue-Lymphatics,Breast,Tissue,Lymphatics,tissue-level lymphatics in breast pathology
+Breast-Tissue-Lymphocytic infiltrate,Breast,Tissue,Lymphocytic infiltrate,tissue-level lymphocytic infiltrate in breast pathology
+Breast-Tissue-Metaplasia nos,Breast,Tissue,Metaplasia nos,tissue-level metaplasia nos in breast pathology
+Breast-Tissue-Mucoid material,Breast,Tissue,Mucoid material,tissue-level mucoid material in breast pathology
+Breast-Tissue-Necrosis or debris,Breast,Tissue,Necrosis or debris,tissue-level necrosis or debris in breast pathology
+Breast-Tissue-Nerve,Breast,Tissue,Nerve,tissue-level nerve in breast pathology
+Breast-Tissue-Normal acinus or duct,Breast,Tissue,Normal acinus or duct,tissue-level normal acinus or duct in breast pathology
+Breast-Tissue-Other immune infiltrate,Breast,Tissue,Other immune infiltrate,tissue-level other immune infiltrate in breast pathology
+Breast-Tissue-Plasma cells,Breast,Tissue,Plasma cells,tissue-level plasma cells in breast pathology
+Breast-Tissue-Skin adnexa,Breast,Tissue,Skin adnexa,tissue-level skin adnexa in breast pathology
+Breast-Tissue-Stroma,Breast,Tissue,Stroma,tissue-level stroma in breast pathology
+Breast-Tissue-Tumor,Breast,Tissue,Tumor,tissue-level tumor in breast pathology
+Lung-Nuclei-Connective,Lung,Nuclei,Connective,nuclei-level connective in lung pathology
+Lung-Nuclei-Dead,Lung,Nuclei,Dead,nuclei-level dead in lung pathology
+Lung-Nuclei-Inflammatory,Lung,Nuclei,Inflammatory,nuclei-level inflammatory in lung pathology
+Lung-Nuclei-Neoplastic,Lung,Nuclei,Neoplastic,nuclei-level neoplastic in lung pathology
+Lung-Tissue-Normal tissue,Lung,Tissue,Normal tissue,tissue-level normal tissue in lung pathology
+Lung-Tissue-Tumor associated stroma tissue,Lung,Tissue,Tumor associated stroma tissue,tissue-level tumor associated stroma tissue in lung pathology
+Lung-Tissue-Tumor epithelial tissue,Lung,Tissue,Tumor epithelial tissue,tissue-level tumor epithelial tissue in lung pathology
+Adrenal-Nuclei-Connective,Adrenal,Nuclei,Connective,nuclei-level connective in adrenal pathology
+Adrenal-Nuclei-Dead,Adrenal,Nuclei,Dead,nuclei-level dead in adrenal pathology
+Adrenal-Nuclei-Epithelial,Adrenal,Nuclei,Epithelial,nuclei-level epithelial in adrenal pathology
+Adrenal-Nuclei-Inflammatory,Adrenal,Nuclei,Inflammatory,nuclei-level inflammatory in adrenal pathology
+Adrenal-Nuclei-Neoplastic,Adrenal,Nuclei,Neoplastic,nuclei-level neoplastic in adrenal pathology
+Bile duct-Nuclei-Connective,Bile duct,Nuclei,Connective,nuclei-level connective in bile duct pathology
+Bile duct-Nuclei-Dead,Bile duct,Nuclei,Dead,nuclei-level dead in bile duct pathology
+Bile duct-Nuclei-Epithelial,Bile duct,Nuclei,Epithelial,nuclei-level epithelial in bile duct pathology
+Bile duct-Nuclei-Inflammatory,Bile duct,Nuclei,Inflammatory,nuclei-level inflammatory in bile duct pathology
+Bile duct-Nuclei-Neoplastic,Bile duct,Nuclei,Neoplastic,nuclei-level neoplastic in bile duct pathology
+Esophagus-Nuclei-Connective,Esophagus,Nuclei,Connective,nuclei-level connective in esophagus pathology
+Esophagus-Nuclei-Dead,Esophagus,Nuclei,Dead,nuclei-level dead in esophagus pathology
+Esophagus-Nuclei-Epithelial,Esophagus,Nuclei,Epithelial,nuclei-level epithelial in esophagus pathology
+Esophagus-Nuclei-Inflammatory,Esophagus,Nuclei,Inflammatory,nuclei-level inflammatory in esophagus pathology
+Esophagus-Nuclei-Neoplastic,Esophagus,Nuclei,Neoplastic,nuclei-level neoplastic in esophagus pathology
+Head neck-Nuclei-Connective,Head neck,Nuclei,Connective,nuclei-level connective in head neck pathology
+Head neck-Nuclei-Dead,Head neck,Nuclei,Dead,nuclei-level dead in head neck pathology
+Head neck-Nuclei-Epithelial,Head neck,Nuclei,Epithelial,nuclei-level epithelial in head neck pathology
+Head neck-Nuclei-Inflammatory,Head neck,Nuclei,Inflammatory,nuclei-level inflammatory in head neck pathology
+Head neck-Nuclei-Neoplastic,Head neck,Nuclei,Neoplastic,nuclei-level neoplastic in head neck pathology
+Liver-Nuclei-Connective,Liver,Nuclei,Connective,nuclei-level connective in liver pathology
+Liver-Nuclei-Dead,Liver,Nuclei,Dead,nuclei-level dead in liver pathology
+Liver-Nuclei-Epithelial,Liver,Nuclei,Epithelial,nuclei-level epithelial in liver pathology
+Liver-Nuclei-Inflammatory,Liver,Nuclei,Inflammatory,nuclei-level inflammatory in liver pathology
+Liver-Nuclei-Neoplastic,Liver,Nuclei,Neoplastic,nuclei-level neoplastic in liver pathology
+Liver-Tissue-Metastatic colon cancer in a liver,Liver,Tissue,Metastatic colon cancer in a liver,tissue-level metastatic colon cancer in a liver in liver pathology
+Cervix-Nuclei-Connective,Cervix,Nuclei,Connective,nuclei-level connective in cervix pathology
+Cervix-Nuclei-Dead,Cervix,Nuclei,Dead,nuclei-level dead in cervix pathology
+Cervix-Nuclei-Epithelial,Cervix,Nuclei,Epithelial,nuclei-level epithelial in cervix pathology
+Cervix-Nuclei-Inflammatory,Cervix,Nuclei,Inflammatory,nuclei-level inflammatory in cervix pathology
+Cervix-Nuclei-Neoplastic,Cervix,Nuclei,Neoplastic,nuclei-level neoplastic in cervix pathology
+Thyroid-Nuclei-Connective,Thyroid,Nuclei,Connective,nuclei-level connective in thyroid pathology
+Thyroid-Nuclei-Dead,Thyroid,Nuclei,Dead,nuclei-level dead in thyroid pathology
+Thyroid-Nuclei-Epithelial,Thyroid,Nuclei,Epithelial,nuclei-level epithelial in thyroid pathology
+Thyroid-Nuclei-Inflammatory,Thyroid,Nuclei,Inflammatory,nuclei-level inflammatory in thyroid pathology
+Thyroid-Nuclei-Neoplastic,Thyroid,Nuclei,Neoplastic,nuclei-level neoplastic in thyroid pathology
+Testis-Nuclei-Connective,Testis,Nuclei,Connective,nuclei-level connective in testis pathology
+Testis-Nuclei-Epithelial,Testis,Nuclei,Epithelial,nuclei-level epithelial in testis pathology
+Testis-Nuclei-Inflammatory,Testis,Nuclei,Inflammatory,nuclei-level inflammatory in testis pathology
+Testis-Nuclei-Neoplastic,Testis,Nuclei,Neoplastic,nuclei-level neoplastic in testis pathology
+Pancreatic-Nuclei-Connective,Pancreatic,Nuclei,Connective,nuclei-level connective in pancreatic pathology
+Pancreatic-Nuclei-Epithelial,Pancreatic,Nuclei,Epithelial,nuclei-level epithelial in pancreatic pathology
+Pancreatic-Nuclei-Inflammatory,Pancreatic,Nuclei,Inflammatory,nuclei-level inflammatory in pancreatic pathology
+Pancreatic-Nuclei-Neoplastic,Pancreatic,Nuclei,Neoplastic,nuclei-level neoplastic in pancreatic pathology
+Uterus-Nuclei-Connective,Uterus,Nuclei,Connective,nuclei-level connective in uterus pathology
+Uterus-Nuclei-Dead,Uterus,Nuclei,Dead,nuclei-level dead in uterus pathology
+Uterus-Nuclei-Epithelial,Uterus,Nuclei,Epithelial,nuclei-level epithelial in uterus pathology
+Uterus-Nuclei-Inflammatory,Uterus,Nuclei,Inflammatory,nuclei-level inflammatory in uterus pathology
+Uterus-Nuclei-Neoplastic,Uterus,Nuclei,Neoplastic,nuclei-level neoplastic in uterus pathology
+Stomach-Nuclei-Connective,Stomach,Nuclei,Connective,nuclei-level connective in stomach pathology
+Stomach-Nuclei-Dead,Stomach,Nuclei,Dead,nuclei-level dead in stomach pathology
+Stomach-Nuclei-Inflammatory,Stomach,Nuclei,Inflammatory,nuclei-level inflammatory in stomach pathology
+Stomach-Nuclei-Neoplastic,Stomach,Nuclei,Neoplastic,nuclei-level neoplastic in stomach pathology
+Skin-Nuclei-Connective,Skin,Nuclei,Connective,nuclei-level connective in skin pathology
+Skin-Nuclei-Epithelial,Skin,Nuclei,Epithelial,nuclei-level epithelial in skin pathology
+Skin-Nuclei-Inflammatory,Skin,Nuclei,Inflammatory,nuclei-level inflammatory in skin pathology
+Skin-Nuclei-Neoplastic,Skin,Nuclei,Neoplastic,nuclei-level neoplastic in skin pathology
+Ovarian-Nuclei-Connective,Ovarian,Nuclei,Connective,nuclei-level connective in ovarian pathology
+Ovarian-Nuclei-Epithelial,Ovarian,Nuclei,Epithelial,nuclei-level epithelial in ovarian pathology
+Ovarian-Nuclei-Inflammatory,Ovarian,Nuclei,Inflammatory,nuclei-level inflammatory in ovarian pathology
+Ovarian-Nuclei-Neoplastic,Ovarian,Nuclei,Neoplastic,nuclei-level neoplastic in ovarian pathology
+Kidney-Nuclei-Connective,Kidney,Nuclei,Connective,nuclei-level connective in kidney pathology
+Kidney-Nuclei-Epithelial,Kidney,Nuclei,Epithelial,nuclei-level epithelial in kidney pathology
+Kidney-Nuclei-Inflammatory,Kidney,Nuclei,Inflammatory,nuclei-level inflammatory in kidney pathology
+Kidney-Nuclei-Neoplastic,Kidney,Nuclei,Neoplastic,nuclei-level neoplastic in kidney pathology
+Bladder-Nuclei-Connective,Bladder,Nuclei,Connective,nuclei-level connective in bladder pathology
+Bladder-Nuclei-Epithelial,Bladder,Nuclei,Epithelial,nuclei-level epithelial in bladder pathology
+Bladder-Nuclei-Inflammatory,Bladder,Nuclei,Inflammatory,nuclei-level inflammatory in bladder pathology
+Bladder-Nuclei-Neoplastic,Bladder,Nuclei,Neoplastic,nuclei-level neoplastic in bladder pathology
