@@ -1,4 +1,4 @@
-Hierarchical Semantic Labels,Anatomical Regions,Histological Structures 61 Object Types,Object Types,Prompt
+Hierarchical Semantic Labels,Anatomical Regions,Histological Structures,Object Types,Text Prompts
 Unspecified-Cell-Endothelial,Unspecified,Cell,Endothelial,cell-level endothelial in unspecified pathology
 Unspecified-Cell-Epithelial,Unspecified,Cell,Epithelial,cell-level epithelial in unspecified pathology
 Unspecified-Cell-Leukocytes,Unspecified,Cell,Leukocytes,cell-level leukocytes in unspecified pathology
