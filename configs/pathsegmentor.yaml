@@ -31,7 +31,7 @@ PORT: '36873'
 LOADER:
   JOINT: True
   KEY_DATASET: ""
-  SAMPLE_PROB: "prop"    # sampling probability proportional to data size. Use "equal" for each bach from all datasets
+  SAMPLE_PROB: "sqrt"
   MIXING_LEVEL: 1    # num of different datasets for batch mixing on each GPU
 
 RANDOM_SEED: 2024

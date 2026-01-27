@@ -41,6 +41,10 @@ pip install git+https://github.com/MaureenZOU/detectron2-xyz.git
 
 The PathSeg dataset was created by preprocessing publicly available pathology image segmentation datasets. For details on the source datasets, please refer to the corresponding documentation: [PathSeg Dataset](assets/readmes/Dataset.md).
 
+
+We also plan to open-source the processed versions of the datasets we have handled and release them at the following repository: [PathSeg on Hugging Face](https://huggingface.co/datasets/Trusure/PathSeg/). However, we are currently in the process of seeking redistribution permissions from the original authors of each dataset. Once we obtain permission for a dataset, we will promptly upload the processed images and masks for that dataset to the [PathSeg](https://huggingface.co/datasets/Trusure/PathSeg/) repository.
+
+
 To give a general overview of the dataset, we provide a sample subset in the `pathseg_datasets/Demo` directory. You can use this subset to train and evaluate the model, helping you understand how the code functions. Additionally, you may create your own dataset by following the same organizational structure as the `Demo` dataset and fine-tune PathSegmentor on it. Detailed instructions can be found in the [Fine-tuning](#fine-tuning-your-pathsegmentor) section.
 
 # 💾 PathSegmentor Checkpoints
