@@ -25,9 +25,9 @@ The PathSeg dataset was constructed by preprocessing publicly available patholog
 | TNBC           | [https://peterjacknaylor.github.io/data/](https://peterjacknaylor.github.io/data/)                                                                                             |
 | WSSS4LUAD      | [https://wsss4luad.grand-challenge.org/](https://wsss4luad.grand-challenge.org/)                                                                                               |
 | CoNSeP         | [https://opendatalab.com/OpenDataLab/CoNSeP](https://opendatalab.com/OpenDataLab/CoNSeP)                                                                                       |
-| CPM15          | [Google Drive Folder](https://drive.google.com/drive/folders/11ko-GcDsPpA9GBHuCtl_jNzWQl6qY_-I)                                                                                |
-| CPM17          | [Google Drive Folder](https://drive.google.com/drive/folders/1sJ4nmkif6j4s2FOGj8j6i_Ye7z9w0TfA)                                                                                |
-| Kumar          | [Google Drive Folder](https://drive.google.com/drive/folders/1bI3RyshWej9c4YoRW-_q7lh7FOFDFUrJ)                                                                                |
+| CPM15          | [https://drive.google.com/drive/folders/11ko-GcDsPpA9GBHuCtl_jNzWQl6qY_-I](https://drive.google.com/drive/folders/11ko-GcDsPpA9GBHuCtl_jNzWQl6qY_-I)                                                                                |
+| CPM17          | [https://drive.google.com/drive/folders/1sJ4nmkif6j4s2FOGj8j6i_Ye7z9w0TfA](https://drive.google.com/drive/folders/1sJ4nmkif6j4s2FOGj8j6i_Ye7z9w0TfA)                                                                                |
+| Kumar          | [https://drive.google.com/drive/folders/1bI3RyshWej9c4YoRW-_q7lh7FOFDFUrJ](https://drive.google.com/drive/folders/1bI3RyshWej9c4YoRW-_q7lh7FOFDFUrJ)                                                                                |
 | Lizard         | [https://www.kaggle.com/datasets/aadimator/lizard-dataset](https://www.kaggle.com/datasets/aadimator/lizard-dataset)                                                           |
 
 ---
