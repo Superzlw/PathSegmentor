@@ -1,0 +1,17 @@
+name: pathsegmentor
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - setuptools=72.1.0
+  - numpy=1.26.4
+  - pytorch=2.1.0
+  - torchvision=0.16.0
+  - pytorch-cuda=12.1
+  - mpi4py=4.0.0
+  - openmpi=5.0.5
+  - ninja

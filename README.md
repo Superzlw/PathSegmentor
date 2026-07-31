@@ -7,34 +7,29 @@
 This repository hosts the official implementation of the research paper titled *"Segment Anything in Pathology Images with Natural Language".* It provides code, models, and resources to support natural language-guided semantic segmentation in pathology imaging.
 
 # 🛠 Environment Setup
-First, create and activate a Conda environment with Python 3.9.18:
+
+The tested environment uses Python 3.11, PyTorch 2.1.0, torchvision 0.16.0, and CUDA 12.1 on Linux with an NVIDIA GPU. Create it with Conda:
 
 ```bash
-conda create -n pathsegmentor python=3.9.18
+git clone https://github.com/zhi-xuan-chen/PathSegmentor.git
+cd PathSegmentor
+conda env create -f environment.yml
 conda activate pathsegmentor
 ```
 
-Install PyTorch matching your CUDA version from [here](https://pytorch.org/get-started/locally/). For basic setups:
+Install the model dependencies. Build isolation is disabled because the pinned custom Detectron2 build imports PyTorch during compilation:
+
 ```bash
-pip3 install torch torchvision
+python -m pip install --no-build-isolation -r requirements.txt
 ```
 
-Download the repository and install dependencies:
-<!-- git clone https://github.com/zhi-xuan-chen/PathSegmentor -->
+Download the NLTK resources used by the language encoder:
+
 ```bash
-cd PathSegmentor
-pip install -r requirements.txt
+python -m nltk.downloader punkt averaged_perceptron_tagger
 ```
 
-Install MPI support for distributed training:
-```bash
-conda install -c conda-forge mpi4py openmpi
-```
-
-Finally, install the custom Detectron2 version:
-```bash
-pip install git+https://github.com/MaureenZOU/detectron2-xyz.git
-```
+The custom Detectron2 extension is compiled during installation, so a C++ compiler and a CUDA toolkit providing `nvcc` are required. The NVIDIA driver must support CUDA 12.1 or newer.
 
 
 # 🗂️ PathSeg Dataset
