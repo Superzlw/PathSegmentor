@@ -1,11 +1,11 @@
 def format_string(input_str: str) -> str:
     """
-    将输入字符串中的 'unspecified' 替换为 'multiple'
+    Replace 'unspecified' with 'multiple' in the input string.
     
     Args:
-        input_str (str): 需要格式化的输入字符串
+        input_str (str): The input string to format.
         
     Returns:
-        str: 格式化后的字符串
+        str: The formatted string.
     """
     return input_str.replace('unspecified', 'multiple')

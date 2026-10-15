@@ -32,7 +32,6 @@ import matplotlib.colors as mcolors
 colors = dict(mcolors.TABLEAU_COLORS, **mcolors.BASE_COLORS)
 colors_list = [list(colors.values())[i] for i in range(16)] 
 
-from .output_processing import mask_stats, combine_masks
     
 
 @torch.no_grad()
@@ -45,7 +44,7 @@ def interactive_infer_image(model, image, prompts):
     image_ori = np.asarray(image_ori)
     image = torch.from_numpy(image_ori.copy()).permute(2,0,1).cuda()
 
-    # 格式化text prompt
+    # Normalize text prompts.
     prompts = [format_string(prompt) for prompt in prompts]
 
     data = {"image": image, 'text': prompts, "height": height, "width": width}

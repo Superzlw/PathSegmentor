@@ -6,9 +6,11 @@
 ---
 This repository hosts the official implementation of the research paper titled *"Segment Anything in Pathology Images with Natural Language".* It provides code, models, and resources to support natural language-guided semantic segmentation in pathology imaging.
 
+**Try the demo:** complete [Environment Setup](#-environment-setup), then follow [Run the notebook](#-how-to-use-pathsegmentor). A sample image is included; you only need to download the model weights. No training or dataset download is required.
+
 # 🛠 Environment Setup
 
-The tested environment uses Python 3.11, PyTorch 2.1.0, torchvision 0.16.0, and CUDA 12.1 on Linux with an NVIDIA GPU. Create it with Conda:
+The tested environment uses Python 3.11, PyTorch 2.1.0, torchvision 0.16.0, and CUDA 12.1 on Linux with an NVIDIA GPU. The notebook requires CUDA; CPU-only and Apple Silicon execution are not supported by this demo. Before installing, make sure `nvidia-smi`, `nvcc --version` (CUDA 12.1), and `g++ --version` work in your terminal. The custom Detectron2 extension needs the CUDA toolkit and a C++ compiler; the Conda CUDA runtime alone does not provide `nvcc`. Create the environment with Conda:
 
 ```bash
 git clone https://github.com/zhi-xuan-chen/PathSegmentor.git
@@ -48,20 +50,78 @@ To give a general overview of the dataset, we provide a sample subset in the `pa
 You can download the pre-trained PathSegmentor checkpoints from this Google Drive link: [PathSegmentor Checkpoints](https://drive.google.com/drive/folders/1HxFdA9KXfS6CKgMX-i6TEVfflHiO5Tmf?usp=sharing).
  
 # 🚀 How to Use PathSegmentor
-The inference workflow using our pre-trained PathSegmentor has been streamlined in the [inference notebook](inference_examples.ipynb). You can directly run inference on sample images provided in the `examples` directory.
 
->💡 **Note**: Remember to change the checkpoint path `pretrained_pth` in the notebook according to your environment configuration.
+### 1. Prepare the checkpoint
 
-We provide four types of examples in the `examples` directory: `1_irregular`, `2_tiny`, `3_dense`, and `4_others`. These directories may contain further subcategories, but each final-level folder always includes two files: an image and a mask.
+After completing Environment Setup, run these commands from the repository root:
 
-To run inference on a specific image, simply replace the `image_path` and `mask_path` variables in the notebook with the paths to your chosen image and mask files.
+```bash
+conda activate pathsegmentor
+mkdir -p checkpoints
+```
 
-The `text_prompt` used for segmentation can be derived from the end of the mask filename. For example, the mask file named `Part_2_1211_pathology_bile+duct_nuclei+connective.png` corresponds to the prompt:
-“nuclei-level connective in bile duct pathology”.
+Download the pretrained `model_state_dict.pt` from [PathSegmentor Checkpoints](https://drive.google.com/drive/folders/1HxFdA9KXfS6CKgMX-i6TEVfflHiO5Tmf?usp=sharing) and save it as `checkpoints/model_state_dict.pt`. If it is already stored elsewhere, change `pretrained_pth` in the notebook's first code cell instead.
 
->💡 **Note:** Remove any `+` signs when constructing the prompt.
+### 2. Open the notebook
 
-Now, run each cell in the notebook. A figure containing the image, predicted mask, and ground truth (GT) mask will be generated at the end, allowing you to compare the results.
+Install Jupyter and register the environment once:
+
+```bash
+python -m pip install jupyterlab ipykernel
+python -m ipykernel install --user --name pathsegmentor --display-name "PathSegmentor"
+python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+```
+
+The check must print `CUDA available: True`. From the repository root, launch:
+
+```bash
+python -m jupyterlab inference_examples.ipynb
+```
+
+Select the **PathSegmentor** kernel, then choose **Run > Run All Cells**. With the checkpoint in the default location, no notebook edits are needed. The notebook uses the first visible GPU and displays the input image and predicted gland mask overlay. Model loading and the first prediction may take some time. The first load also needs internet access to download the `openai/clip-vit-base-patch32` tokenizer from Hugging Face unless it is already cached.
+
+To choose a GPU on a machine with several GPUs, set its index before launching Jupyter, for example:
+
+```bash
+CUDA_VISIBLE_DEVICES=1 python -m jupyterlab inference_examples.ipynb
+```
+
+For VS Code, open the repository folder, open `inference_examples.ipynb`, select the **PathSegmentor** kernel, and click **Run All**. For a remote GPU server, use VS Code Remote SSH or Jupyter through an SSH tunnel; the notebook kernel must run on the GPU server.
+
+### 3. Try your own image (optional)
+
+All settings are together in the first code cell:
+
+```python
+pretrained_pth = 'checkpoints/model_state_dict.pt'
+image_path = 'examples/1_irregular/2/test181_pathology_colon.png'
+text_prompt = ['tissue-level gland in colon pathology']
+```
+
+| Setting | What to change |
+| --- | --- |
+| `pretrained_pth` | Path to the downloaded weights; keep the default if you used step 1. |
+| `image_path` | Path to a pathology image. Relative paths are resolved from the repository root. |
+| `text_prompt` | A nonempty list of English prompts describing the structure and organ to segment. Keep the square brackets even for one prompt. |
+
+Use a 1024 × 1024 pathology patch at 40× magnification for the intended input setting. The demo pads and resizes other image sizes to 1024 × 1024; it does not infer or correct magnification. Whole-slide files must first be converted into patches.
+
+More examples are under `examples/1_irregular`, `examples/2_tiny`, `examples/3_dense`, and `examples/4_others`. Mask filenames indicate suitable prompts: `Part_2_1211_pathology_bile+duct_nuclei+connective.png` corresponds to `['nuclei-level connective in bile duct pathology']`. Replace `+` separators with spaces. Ground-truth masks are optional reference annotations; the demo does not require a `mask_path` or display a GT panel by default.
+
+After loading the model, you can assign a new `image_path` and `text_prompt` in a new cell and rerun the final prediction cell. If you change the checkpoint, restart the kernel and run all cells again.
+
+### Troubleshooting
+
+| Symptom | What to do |
+| --- | --- |
+| Missing checkpoint or image | Read the path in the error and update the settings cell, or place the file at that path. |
+| Config file missing / `No module named modeling` | Launch Jupyter from the repository root, not its parent directory. |
+| CUDA unavailable | Select the PathSegmentor kernel, check `nvidia-smi`, and check `CUDA_VISIBLE_DEVICES`. This demo requires an NVIDIA GPU. |
+| Detectron2 installation fails | Check `nvcc`, the CUDA toolkit version, and the C++ compiler. Activate `pathsegmentor` and use the installation command with `--no-build-isolation` above. |
+| Missing Python package or MPI library | Select the registered kernel and complete both `environment.yml` and `requirements.txt` installation. |
+| Tokenizer download fails | Allow access to Hugging Face for the first run, or set `MODEL.TEXT.PRETRAINED_TOKENIZER` in `configs/pathsegmentor_inference.yaml` to a local directory containing the CLIP tokenizer files. |
+| NLTK resource missing | Rerun `python -m nltk.downloader punkt averaged_perceptron_tagger` in the activated environment. |
+| CUDA out of memory | Restart the kernel to release its model allocations; use a GPU with more free memory and close other GPU jobs you own. |
 
 # Fine-tuning Your PathSegmentor
 To fine-tune PathSegmentor on your own dataset, follow the instructions below to organize your data according to the required format and begin the fine-tuning process.
