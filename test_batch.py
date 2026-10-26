@@ -395,6 +395,8 @@ def sanity(seg, thr):
     for k, (ip, mp, prompt) in enumerate(pairs):
         image = np.array(Image.open(ip).convert("RGB"))
         gt = np.array(Image.open(mp).convert("L")) > 0
+        if image.shape[:2] != gt.shape:   # 如 1224_pathology_colon.png 原图 512、mask 1024；官方 demo 同样会把输入 bicubic 缩放到 1024
+            image = np.array(Image.fromarray(image).resize(gt.shape[::-1], Image.BICUBIC))
         prob = predict(seg, image, [prompt], upscale=1)[0]
         pred = prob > thr
         d = dice(int((pred & gt).sum()), int(pred.sum()), int(gt.sum()))
