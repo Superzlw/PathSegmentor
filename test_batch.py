@@ -18,10 +18,19 @@
 像素规则：未标注(0) 永远不参与计算；背景(11) 不作为类别评测，但模型在背景上的预测默认算误报；
 加 --ignore-background 则背景像素也完全不参与计算。
 
-倍率：PathSegmentor 训练用的是 40x（约 0.25 um/px）的 1024x1024 patch。UKK_Col 的 tile 文件名里
-d=2.16945、w=2222 表示从约 0.23 um/px 的原图降采样到约 0.5 um/px，所以默认 --upscale 2：
-把 1024 的 tile 放大到 2048，切成 4 块 1024 分别推理，概率图拼回后再缩回 1024 计算 Dice。
---upscale 1 = 直接按 1024 输入（与 BiomedParse 那边的做法相同）。
+默认按官方推荐用法（README + 论文的数据处理）：
+  - 输入：40x 的 1024x1024 patch。UKK_Col 是 20x（约 0.5 um/px），按论文"非 40x 数据双线性放大到 40x、
+    边长超过 1500 按 1024 切块"的规则：1024 的 tile 放大到 2048，切成 4 块 1024 分别推理（--upscale 2 --crop 1024），
+    概率图拼回后用区域平均缩回 1024，与你自己模型的结果在同一张 tile、同一分辨率上算 Dice。
+  - prompt：论文模板 "<结构>-level <对象> in <部位> pathology"，结构 tissue、部位 colon、对象用 OBJECTS 里的名字
+    （去掉与 "tissue-level" 重复的 "tissue"）。--trained-prompts 改用训练原文，不是官方用法，只作分析。
+  - 阈值 0.5；每个 prompt 单独推理（与论文评测一致：一个样本一条 prompt）。
+--gate 决定 prompt 发给哪几块 patch：
+  tile（默认）= 类别在整张 tile 的 GT 里出现，就发给全部 4 块。模型拿到的信息与你的模型相同
+               （只知道"这张 tile 里有"），不含该类的 patch 也会被迫给出预测。
+  patch       = 只发给 GT 里含有该类的 patch（论文以 patch 为样本的评测方式），模型额外获知类别在哪块里。
+50 张试跑（非官方设置，仅供参考）：--upscale 1 比官方的放大切块更好
+（--trained-prompts、gate tile 的 mean Dice：epithelial 0.67 vs 0.54，mucosa 0.41 vs 0.15，connective 0.14 vs 0.04）。
 
 输出（--out 目录）：config.json（参数与 prompt）、per_tile.csv（每张图每个类别的像素数与 Dice）、
 summary.csv（每类与各组的汇总）、vis/（--save-vis 时的对比图：原图 | GT | 预测）。
@@ -61,6 +70,18 @@ CLASSES = {
     "mucin":                    ((10,),     "tissue-level mucoid material in breast pathology"),
 }
 UNANNOTATED, BACK = 0, 11
+
+# 官方模板里的 <对象>（"tissue-level" 已表明是组织级，所以去掉类名里重复的 "tissue"）
+OBJECTS = {
+    "epithelial tissue":        "epithelial",
+    "colorectal mucosa":        "colorectal mucosa",
+    "connective tissue":        "connective",
+    "muscle tissue":            "muscle",
+    "dense lymphoid aggregate": "dense lymphoid aggregate",
+    "necrotic debris":          "necrotic debris",
+    "erythrocytes":             "erythrocytes",
+    "mucin":                    "mucin",
+}
 
 NAMES = list(CLASSES)
 IN_TRAIN = [c for c in NAMES if CLASSES[c][1] is not None]
@@ -135,6 +156,13 @@ def summarize(stats, all_prompts):
     return per_class, groups
 
 
+def crop_prompt_ids(mask, labels_list, box):
+    """--gate patch 用：box = 原图坐标 (y0, y1, x0, x1)，返回在这块区域的 GT 中出现过的 prompt 下标。"""
+    y0, y1, x0, x1 = box
+    sub = mask[y0:y1, x0:x1]
+    return [i for i, labels in enumerate(labels_list) if np.isin(sub, labels).any()]
+
+
 def example_prompt(mask_file):
     """示例 mask 文件名 -> 训练格式的 prompt，如 ..._bile+duct_nuclei+connective.png ->
     'nuclei-level connective in bile duct pathology'（与 README 的说明一致）。"""
@@ -176,6 +204,15 @@ def selftest():
     assert gr["in-training"]["classes"] == 1 and gr["absent-from-training"]["classes"] == 1
     assert close(gr["in-training"]["macro"], 0.8) and close(gr["absent-from-training"]["macro"], 0.2)
     assert pc["muscle tissue"]["tiles"] == 0 and pc["muscle tissue"]["mean"] != pc["muscle tissue"]["mean"]
+
+    # --gate patch：只给 GT 里含有该类的区域发 prompt
+    labels_list = [(1,), (5,), (9,)]
+    assert crop_prompt_ids(m, labels_list, (0, 1, 0, 4)) == [0]        # 第一行只有标签 1/2/0
+    assert crop_prompt_ids(m, labels_list, (1, 3, 0, 2)) == [1]        # 3,4 / 5,5 → 只有 muscle
+    assert crop_prompt_ids(m, labels_list, (0, 3, 0, 4)) == [0, 1]     # 整张：没有 9
+    assert set(OBJECTS) == set(NAMES)
+    assert build_prompts("tissue-level {name} in colon pathology", False)["epithelial tissue"] == \
+        "tissue-level epithelial in colon pathology"
 
     assert example_prompt("Part_2_1211_pathology_bile+duct_nuclei+connective.png") == \
         "nuclei-level connective in bile duct pathology"
@@ -345,18 +382,27 @@ class Segmenter:
             return torch.stack(out)
 
 
-def predict(seg, image, prompts, upscale):
-    """返回 (len(prompts), H, W) 概率图。upscale>1 时先放大、按 1024 切块推理、拼回后用区域平均缩回原尺寸。"""
+def predict(seg, image, prompts, upscale, crop=CROP, gate=None):
+    """返回 (len(prompts), H, W) 概率图。upscale>1 时先放大、按 crop 切块推理、拼回后用区域平均缩回原尺寸。
+    crop=0：不切块，（放大后的）整张图一次推理。
+    gate=(mask, 每个 prompt 的标签)：只把 prompt 发给 GT 里含有该类的块，其余块该 prompt 的概率为 0（--gate patch）。"""
     torch = seg.torch
     import torch.nn.functional as F
     H, W = image.shape[:2]
     big = image if upscale == 1 else np.array(
         Image.fromarray(image).resize((W * upscale, H * upscale), Image.BILINEAR))
     BH, BW = big.shape[:2]
+    step = crop if crop > 0 else max(BH, BW)
     acc = torch.zeros((len(prompts), BH, BW), device=seg.m.device)
-    for y in range(0, BH, CROP):
-        for x in range(0, BW, CROP):
-            acc[:, y:y + CROP, x:x + CROP] = seg.crop_probs(big[y:y + CROP, x:x + CROP], prompts)
+    for y in range(0, BH, step):
+        for x in range(0, BW, step):
+            ids = list(range(len(prompts)))
+            if gate is not None:
+                box = (y // upscale, (y + step) // upscale, x // upscale, (x + step) // upscale)
+                ids = crop_prompt_ids(gate[0], gate[1], box)
+            if ids:
+                acc[ids, y:y + step, x:x + step] = seg.crop_probs(big[y:y + step, x:x + step],
+                                                                  [prompts[i] for i in ids])
     if upscale > 1:
         acc = F.interpolate(acc[None], size=(H, W), mode="area")[0]
     return acc.cpu().numpy()
@@ -366,7 +412,7 @@ def build_prompts(template, trained):
     out = {}
     for c in NAMES:
         tp = CLASSES[c][1]
-        out[c] = tp if (trained and tp) else template.format(name=c)
+        out[c] = tp if (trained and tp) else template.format(name=OBJECTS[c])
     return out
 
 
@@ -474,11 +520,16 @@ def main():
     ap.add_argument("--ckpt", default=DEFAULT_CKPT, help="PathSegmentor 权重 model_state_dict.pt")
     ap.add_argument("--out", default="out/ukk_col_tissue", help="结果输出目录（不同设置请用不同目录）")
     ap.add_argument("--upscale", type=int, default=2, choices=[1, 2, 3, 4],
-                    help="输入放大倍数：2 = 0.5 um/px 的 tile 放大到训练用的 40x；1 = 直接输入")
+                    help="输入放大倍数：2 = 20x 的 tile 放大到官方要求的 40x（默认）；1 = 直接输入（非官方）")
+    ap.add_argument("--crop", type=int, default=CROP,
+                    help="推理切块边长（放大后的像素），默认 1024 = 官方 patch 大小；0 = 不切块（非官方）")
+    ap.add_argument("--gate", choices=["tile", "patch"], default="tile",
+                    help="tile = 类别在 tile 里出现就发给全部 patch（与你的模型信息相同，默认）；"
+                         "patch = 只发给 GT 含该类的 patch（论文按 patch 评测的方式）")
     ap.add_argument("--template", default="tissue-level {name} in colon pathology",
-                    help="用自己类别名时的 prompt 模板（PathSeg 训练格式：<结构>-level <对象> in <部位> pathology）")
+                    help="官方 prompt 模板 <结构>-level <对象> in <部位> pathology；{name} 换成 OBJECTS 里的对象名")
     ap.add_argument("--trained-prompts", action="store_true",
-                    help="in-training 组改用 PathSeg 训练集里同一概念的原文 prompt（见 CLASSES）")
+                    help="in-training 组改用 PathSeg 训练原文（非官方用法，只作分析；见 CLASSES）")
     ap.add_argument("--all-prompts", action="store_true", help="每张图都发全部 8 个 prompt，额外报告含误检的 Dice")
     ap.add_argument("--ignore-background", action="store_true", help="背景(11)像素也不参与计算")
     ap.add_argument("--thr", type=float, default=0.5, help="概率阈值")
@@ -506,6 +557,8 @@ def main():
         sys.exit("没有配对成功的图像 / mask，先跑 --check")
     if "{name}" not in a.template:
         sys.exit("--template 里必须包含 {name}")
+    if a.gate == "patch" and a.all_prompts:
+        sys.exit("--all-prompts 会把所有 prompt 发给所有 patch，不能和 --gate patch 一起用")
     if a.limit:
         pairs = sorted(random.Random(0).sample(pairs, min(a.limit, len(pairs))))
 
@@ -519,7 +572,7 @@ def main():
         json.dump({**vars(a), "prompts": prompts, "prompt_in_training_vocab": in_vocab, "n_pairs": len(pairs),
                    "unpaired_images": len(only_img), "unpaired_masks": len(only_mask)},
                   f, ensure_ascii=False, indent=2)
-    print(f"{len(pairs)} 张图；upscale {a.upscale}；prompt（* = PathSeg 训练原文）:")
+    print(f"{len(pairs)} 张图；upscale {a.upscale}；crop {a.crop}；gate {a.gate}；prompt（* = PathSeg 训练原文）:")
     for c in NAMES:
         print(f"  {'*' if in_vocab[c] else ' '} {c:<26}{prompts[c]}")
 
@@ -547,7 +600,8 @@ def main():
             if not todo:
                 skipped.append((ip, "没有任何评测类别（只有未标注/背景）"))
                 continue
-            probs = predict(seg, image, [prompts[c] for c in todo], a.upscale)
+            gate = (mask, [CLASSES[c][0] for c in todo]) if a.gate == "patch" else None
+            probs = predict(seg, image, [prompts[c] for c in todo], a.upscale, a.crop, gate)
             for i, c in enumerate(todo):
                 tp, p, g = tile_counts(mask, probs[i] > a.thr, CLASSES[c][0], valid)
                 add(stats[c], tp, p, g)
