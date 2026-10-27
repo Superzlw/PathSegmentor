@@ -150,14 +150,18 @@ def summarize(stats, all_prompts):
     for g, members in GROUPS.items():
         cs = [c for c in members if stats[c]["n"] > 0]      # 测试集里没出现过的类别不进入总体
 
-        def tot(k):
-            return sum(stats[c][k] for c in cs)
+        nq = sum(stats[c]["n"] for c in cs)
 
-        groups[g] = {
+        def macro(k):
+            return float(np.mean([per_class[c][k] for c in cs])) if cs else NAN
+
+        groups[g] = {   # 与自己模型脚本的 macro_mean_dice / macro_pooled_dice / all_questions_mean_dice 同义
             "classes": len(cs),
-            "macro": float(np.mean([per_class[c]["mean"] for c in cs])) if cs else NAN,
-            "micro": dice(tot("tp"), tot("p"), tot("g")),
-            "micro_all": dice(tot("tp_all"), tot("p_all"), tot("g_all")) if all_prompts else NAN,
+            "questions": nq,
+            "macro_mean": macro("mean"),
+            "macro_pooled": macro("pooled"),
+            "macro_all": macro("all") if all_prompts else NAN,
+            "all_questions": sum(stats[c]["dsum"] for c in cs) / nq if nq else NAN,
         }
     return per_class, groups
 
