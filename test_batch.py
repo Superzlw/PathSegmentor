@@ -118,11 +118,17 @@ def new_stat():
     return {"n": 0, "dsum": 0.0, "tp": 0, "p": 0, "g": 0, "tp_all": 0, "p_all": 0, "g_all": 0}
 
 
-def add(stat, tp, p, g):
+def is_present(g, tile_px, min_frac):
+    """该 (tile, 类别) 是否提问、计分：GT 面积 >= min_frac x 整张 tile 像素（与自己模型的
+    VPR_LISA_BASED/scripts/test_batch.py 的 present_classes 相同，默认 0.02）；min_frac=0 即 GT 里有就算。"""
+    return g > 0 and g >= min_frac * tile_px
+
+
+def add(stat, tp, p, g, present):
     stat["tp_all"] += tp
     stat["p_all"] += p
     stat["g_all"] += g
-    if g > 0:                       # 只有 GT 里有这个类别的图才进入 mean / pooled
+    if present:                     # 只有计分的 (tile, 类别) 才进入 mean / pooled
         stat["n"] += 1
         stat["dsum"] += dice(tp, p, g)
         stat["tp"] += tp
@@ -187,10 +193,10 @@ def selftest():
     assert tile_counts(m, allp, (3, 4, 6), valid_region(m, True)) == (3, 8, 3)
 
     st = {c: new_stat() for c in NAMES}
-    add(st["epithelial tissue"], 4, 5, 5)    # 单张 Dice 0.8
-    add(st["epithelial tissue"], 4, 5, 5)    # 0.8
-    add(st["epithelial tissue"], 0, 3, 0)    # GT 里没有：不进 mean/pooled，只进 all（误检）
-    add(st["colorectal mucosa"], 1, 5, 5)    # 0.2
+    add(st["epithelial tissue"], 4, 5, 5, True)     # 单张 Dice 0.8
+    add(st["epithelial tissue"], 4, 5, 5, True)     # 0.8
+    add(st["epithelial tissue"], 0, 3, 0, False)    # 不计分（GT 没有）：不进 mean/pooled，只进 all（误检）
+    add(st["colorectal mucosa"], 1, 5, 5, True)     # 0.2
     pc, gr = summarize(st, all_prompts=True)
 
     def close(a, b):
@@ -199,10 +205,15 @@ def selftest():
     e = pc["epithelial tissue"]
     assert e["tiles"] == 2 and close(e["mean"], 0.8) and close(e["pooled"], 0.8)
     assert close(e["all"], 16 / 23)                          # 2*8 / (13+10)
-    assert close(gr["ALL"]["macro"], 0.5)                    # (0.8 + 0.2) / 2
-    assert close(gr["ALL"]["micro"], 18 / 30)                # 2*(8+1) / ((10+5)+(10+5))
+    assert close(gr["ALL"]["macro_mean"], 0.5)               # (0.8 + 0.2) / 2
+    assert close(gr["ALL"]["macro_pooled"], 0.5)             # 两类 pooled 分别 0.8、0.2
+    assert close(gr["ALL"]["all_questions"], 1.8 / 3)        # 3 个问题 (0.8 + 0.8 + 0.2) / 3
+    assert gr["ALL"]["questions"] == 3
     assert gr["in-training"]["classes"] == 1 and gr["absent-from-training"]["classes"] == 1
-    assert close(gr["in-training"]["macro"], 0.8) and close(gr["absent-from-training"]["macro"], 0.2)
+    assert close(gr["in-training"]["macro_mean"], 0.8) and close(gr["absent-from-training"]["macro_mean"], 0.2)
+    # min_frac 与自己模型的脚本一致：gt.sum() >= min_frac * mask.size
+    assert is_present(20972, 1024 * 1024, 0.02) and not is_present(20971, 1024 * 1024, 0.02)
+    assert is_present(1, 100, 0.0) and not is_present(0, 100, 0.0)
     assert pc["muscle tissue"]["tiles"] == 0 and pc["muscle tissue"]["mean"] != pc["muscle tissue"]["mean"]
 
     # --gate patch：只给 GT 里含有该类的区域发 prompt
@@ -480,36 +491,62 @@ def num(x):
     return f"{x:.4f}" if x == x else ""
 
 
-def report(per_class, groups, prompts, in_vocab, all_prompts, out_dir):
+def report(per_class, groups, prompts, in_vocab, all_prompts, min_frac, out_dir, csv_name="summary.csv"):
     pw = max(len(p) for p in prompts.values()) + 2
-    cols = ["mean", "pooled"] + (["all"] if all_prompts else [])
-    head = f"{'class':<26}{'group':<10}{'prompt':<{pw}}{'tiles':>6}" + "".join(f"{c:>8}" for c in cols)
+    cols = ["mean", "pooled"] + (["all"] if all_prompts else []) + ["allq"]
+    head = f"{'class':<26}{'group':<10}{'prompt':<{pw}}{'n':>7}" + "".join(f"{c:>8}" for c in cols)
     print("\n" + head + "\n" + "-" * len(head))
     rows = []
     for c in NAMES:
         r = per_class[c]
         grp = "in-train" if c in IN_TRAIN else "absent"
-        vals = [r["mean"], r["pooled"]] + ([r["all"]] if all_prompts else [])
-        print(f"{c:<26}{grp:<10}{prompts[c]:<{pw}}{r['tiles']:>6}" + "".join(fmt(v) for v in vals))
-        rows.append(["class", c, grp, prompts[c], r["tiles"], num(r["mean"]), num(r["pooled"]), num(r["all"]),
-                     int(in_vocab[c])])
+        vals = [r["mean"], r["pooled"]] + ([r["all"]] if all_prompts else []) + [NAN]
+        print(f"{c:<26}{grp:<10}{prompts[c]:<{pw}}{r['tiles']:>7}" + "".join(fmt(v) for v in vals))
+        rows.append(["class", c, grp, prompts[c], r["tiles"], num(r["mean"]), num(r["pooled"]), num(r["all"]), "",
+                     int(in_vocab.get(c, False))])
     print("-" * len(head))
     for g, r in groups.items():
-        vals = [r["macro"], r["micro"]] + ([r["micro_all"]] if all_prompts else [])
+        vals = [r["macro_mean"], r["macro_pooled"]] + ([r["macro_all"]] if all_prompts else []) + [r["all_questions"]]
         label = f"({r['classes']} classes)"
-        print(f"{g:<26}{'':<10}{label:<{pw}}{'':>6}" + "".join(fmt(v) for v in vals))
-        rows.append(["group", g, "", "", r["classes"], num(r["macro"]), num(r["micro"]), num(r["micro_all"]), ""])
-    print("\nmean   = 每张图 Dice 的平均；组那几行是各类 mean 再取平均（macro，每类权重相同）")
-    print("pooled = 所有图的像素合并后算一个 Dice；组那几行是跨类别合并（micro，大类权重大）")
+        print(f"{g:<26}{'':<10}{label:<{pw}}{r['questions']:>7}" + "".join(fmt(v) for v in vals))
+        rows.append(["group", g, "", "", r["questions"], num(r["macro_mean"]), num(r["macro_pooled"]),
+                     num(r["macro_all"]), num(r["all_questions"]), ""])
+    print(f"\nn      = 计分的 (tile, 类别) 数：GT 面积 >= {min_frac:g} × 整张 tile 才提问、才计分；组那几行是问题总数")
+    print("mean   = 每个问题 Dice 的平均；组那几行 = 各类 mean 的平均（macro，= 自己模型脚本的 macro_mean_dice）")
+    print("pooled = 所有问题的像素合并后算一个 Dice；组那几行 = 各类 pooled 的平均（= macro_pooled_dice）")
     if all_prompts:
-        print("all    = 同 pooled，但把 GT 里没有该类别的图也算进去（误检会拉低它）")
-    print("tiles  = GT 里出现该类别的图数；没出现过的类别不进入总体")
+        print("all    = 同 pooled，但每张图都问全部 8 类，GT 里没有的图上的误检也算进去；组那几行 = 各类 all 的平均")
+    print("allq   = 只有组那几行：组内所有问题 Dice 的平均，问题多的类别权重大（= all_questions_mean_dice）")
     print("in-train = PathSeg 训练标签里有这个组织概念（多数来自乳腺 BCSS 或不分器官的 SegPath）；absent = 没有")
-    with open(os.path.join(out_dir, "summary.csv"), "w", newline="") as f:
+    with open(os.path.join(out_dir, csv_name), "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["level", "name", "group", "prompt", "tiles_or_classes",
-                    "mean_or_macro", "pooled_or_micro", "all_pooled", "prompt_in_training_vocab"])
+        w.writerow(["level", "name", "group", "prompt", "n", "mean_or_macro_mean", "pooled_or_macro_pooled",
+                    "all_or_macro_all", "all_questions_mean", "prompt_in_training_vocab"])
         w.writerows(rows)
+    print(f"汇总写入 {os.path.join(out_dir, csv_name)}")
+
+
+def resummarize(out_dir, min_frac):
+    """不跑模型：按 min_frac 重新汇总已有的 per_tile.csv。旧版输出没有 tile_px 列时按 1024x1024 算面积占比。"""
+    with open(os.path.join(out_dir, "config.json")) as f:
+        cfg = json.load(f)
+    all_prompts = cfg.get("all_prompts", False)
+    stats = {c: new_stat() for c in NAMES}
+    n_rows = no_px = 0
+    with open(os.path.join(out_dir, "per_tile.csv"), newline="") as f:
+        for r in csv.DictReader(f):
+            if not r.get("tile_px"):
+                no_px += 1
+            g = int(r["gt_px"])
+            add(stats[r["class"]], int(r["tp"]), int(r["pred_px"]), g,
+                is_present(g, int(r.get("tile_px") or 1024 * 1024), min_frac))
+            n_rows += 1
+    print(f"重新汇总 {out_dir}/per_tile.csv（{n_rows} 行），min_frac {min_frac:g}")
+    if no_px:
+        print(f"  其中 {no_px} 行没有 tile_px 列（旧版输出），按 1024x1024 计算面积占比")
+    per_class, groups = summarize(stats, all_prompts)
+    report(per_class, groups, cfg["prompts"], cfg.get("prompt_in_training_vocab", {}), all_prompts, min_frac,
+           out_dir, f"summary_minfrac{min_frac:g}.csv")
 
 
 # ---------------- 主流程 ----------------
@@ -532,6 +569,11 @@ def main():
                     help="in-training 组改用 PathSeg 训练原文（非官方用法，只作分析；见 CLASSES）")
     ap.add_argument("--all-prompts", action="store_true", help="每张图都发全部 8 个 prompt，额外报告含误检的 Dice")
     ap.add_argument("--ignore-background", action="store_true", help="背景(11)像素也不参与计算")
+    ap.add_argument("--min-frac", type=float, default=0.02,
+                    help="类别 GT 面积 >= 该比例 × 整张 tile 才提问、才计分；0.02 = 自己模型 scripts/test_batch.py 的默认；"
+                         "0 = GT 里有就算")
+    ap.add_argument("--resummarize", metavar="OUT_DIR",
+                    help="不跑模型：按 --min-frac 重新汇总 OUT_DIR/per_tile.csv，写入 summary_minfrac<值>.csv")
     ap.add_argument("--thr", type=float, default=0.5, help="概率阈值")
     ap.add_argument("--limit", type=int, default=0, help="随机抽 N 张（固定种子），0 = 全部")
     ap.add_argument("--save-vis", type=int, default=0, help="保存前 N 张的对比图（原图 | GT | 预测）")
@@ -544,6 +586,9 @@ def main():
         sys.exit("请在 PathSegmentor 仓库根目录运行")
     if a.selftest:
         selftest()
+        return
+    if a.resummarize:
+        resummarize(a.resummarize, a.min_frac)
         return
     if a.sanity:
         model = load_model(a.ckpt)
@@ -583,7 +628,7 @@ def main():
     n_eval, skipped, n_vis = 0, [], 0
     with open(os.path.join(a.out, "per_tile.csv"), "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["file", "class", "prompt", "present", "gt_px", "pred_px", "tp", "dice"])
+        w.writerow(["file", "class", "prompt", "present", "gt_px", "pred_px", "tp", "dice", "tile_px"])
         for ip, mp in tqdm(pairs, dynamic_ncols=True):
             try:
                 image = np.array(Image.open(ip).convert("RGB"))
@@ -595,18 +640,20 @@ def main():
                 skipped.append((ip, f"尺寸不一致 image {image.shape[:2]} / mask {mask.shape}"))
                 continue
             valid = valid_region(mask, a.ignore_background)
-            present = [c for c in NAMES if np.isin(mask, CLASSES[c][0]).any()]
+            present = [c for c in NAMES
+                       if is_present(int(np.isin(mask, CLASSES[c][0]).sum()), mask.size, a.min_frac)]
             todo = NAMES if a.all_prompts else present
             if not todo:
-                skipped.append((ip, "没有任何评测类别（只有未标注/背景）"))
+                skipped.append((ip, f"没有 GT 面积 >= {a.min_frac:g} 的评测类别"))
                 continue
             gate = (mask, [CLASSES[c][0] for c in todo]) if a.gate == "patch" else None
             probs = predict(seg, image, [prompts[c] for c in todo], a.upscale, a.crop, gate)
             for i, c in enumerate(todo):
                 tp, p, g = tile_counts(mask, probs[i] > a.thr, CLASSES[c][0], valid)
-                add(stats[c], tp, p, g)
-                w.writerow([os.path.basename(ip), c, prompts[c], int(g > 0), g, p, tp,
-                            f"{dice(tp, p, g):.4f}" if g > 0 else ""])
+                counted = c in present
+                add(stats[c], tp, p, g, counted)
+                w.writerow([os.path.basename(ip), c, prompts[c], int(counted), g, p, tp,
+                            f"{dice(tp, p, g):.4f}" if counted else "", mask.size])
             n_eval += 1
             if n_vis < a.save_vis:
                 stem = os.path.splitext(os.path.basename(ip))[0]
@@ -614,7 +661,7 @@ def main():
                 n_vis += 1
 
     per_class, groups = summarize(stats, a.all_prompts)
-    report(per_class, groups, prompts, in_vocab, a.all_prompts, a.out)
+    report(per_class, groups, prompts, in_vocab, a.all_prompts, a.min_frac, a.out)
     print(f"\n评测 {n_eval} 张；跳过 {len(skipped)} 张；结果在 {a.out}/")
     for ip, why in skipped[:5]:
         print(f"  跳过 {os.path.basename(ip)}: {why}")
