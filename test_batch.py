@@ -578,6 +578,8 @@ def main():
                          "0 = GT 里有就算")
     ap.add_argument("--resummarize", metavar="OUT_DIR",
                     help="不跑模型：按 --min-frac 重新汇总 OUT_DIR/per_tile.csv，写入 summary_minfrac<值>.csv")
+    ap.add_argument("--tile-size", type=int, default=1024,
+                    help="只评测这个尺寸的 tile，其他尺寸跳过（与自己模型脚本的 --tile_size 相同）；0 = 不限")
     ap.add_argument("--thr", type=float, default=0.5, help="概率阈值")
     ap.add_argument("--limit", type=int, default=0, help="随机抽 N 张（固定种子），0 = 全部")
     ap.add_argument("--save-vis", type=int, default=0, help="保存前 N 张的对比图（原图 | GT | 预测）")
@@ -598,7 +600,11 @@ def main():
         model = load_model(a.ckpt)
         sanity(Segmenter(model, [p for _, _, p in example_pairs()]), a.thr)
         return
-    pairs, only_img, only_mask = pair_files(os.path.join(a.data, "image"), os.path.join(a.data, "mask"))
+    img_dir, msk_dir = os.path.join(a.data, "image"), os.path.join(a.data, "mask")
+    if not (os.path.isdir(img_dir) and os.path.isdir(msk_dir)):
+        sys.exit(f"{a.data} 下没有 image/ 和 mask/ 子目录。QuPath 导出的是 <切片>/ALL/*.jpg|png，需要先像 UKK_Col 那样"
+                 "汇总（VPR_LISA_BASED/scripts/ukk_col/move_qupath2train_val.py）")
+    pairs, only_img, only_mask = pair_files(img_dir, msk_dir)
     if a.check:
         check(pairs, only_img, only_mask)
         return
@@ -643,6 +649,9 @@ def main():
             if image.shape[:2] != mask.shape:
                 skipped.append((ip, f"尺寸不一致 image {image.shape[:2]} / mask {mask.shape}"))
                 continue
+            if a.tile_size and image.shape[:2] != (a.tile_size, a.tile_size):
+                skipped.append((ip, f"不是 {a.tile_size}x{a.tile_size}"))
+                continue
             valid = valid_region(mask, a.ignore_background)
             present = [c for c in NAMES
                        if is_present(int(np.isin(mask, CLASSES[c][0]).sum()), mask.size, a.min_frac)]
@@ -667,8 +676,10 @@ def main():
     per_class, groups = summarize(stats, a.all_prompts)
     report(per_class, groups, prompts, in_vocab, a.all_prompts, a.min_frac, a.out)
     print(f"\n评测 {n_eval} 张；跳过 {len(skipped)} 张；结果在 {a.out}/")
-    for ip, why in skipped[:5]:
-        print(f"  跳过 {os.path.basename(ip)}: {why}")
+    for why, k in Counter(why for _, why in skipped).most_common(5):
+        print(f"  跳过 {k} 张：{why}")
+    for ip, why in skipped[:3]:
+        print(f"  例: {os.path.basename(ip)}: {why}")
 
 
 if __name__ == "__main__":
