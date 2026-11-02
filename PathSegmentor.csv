@@ -1,0 +1,56 @@
+cohort,level,name,group,prompt,n,mean_dice,pooled_dice,all_questions_mean_dice,empty_mask_rate,median_pred_to_gt_area,pixel_precision
+UKK,class,epithelial tissue,in-training,tissue-level epithelial in colon pathology,2883,0.6401,0.6590,,0.017,0.490,0.984
+UKK,class,colorectal mucosa,absent-from-training,tissue-level colorectal mucosa in colon pathology,1040,0.0416,0.0653,,0.841,0.000,0.994
+UKK,class,connective tissue,in-training,tissue-level connective in colon pathology,7012,0.0224,0.0227,,0.612,0.000,0.917
+UKK,class,muscle tissue,in-training,tissue-level muscle in colon pathology,1467,0.0015,0.0010,,0.975,0.000,0.793
+UKK,class,dense lymphoid aggregate,in-training,tissue-level dense lymphoid aggregate in colon pathology,188,0.3976,0.4075,,0.011,0.255,0.994
+UKK,class,necrotic debris,in-training,tissue-level necrotic debris in colon pathology,312,0.4402,0.6971,,0.250,0.334,0.954
+UKK,class,erythrocytes,in-training,tissue-level erythrocytes in colon pathology,138,0.0013,0.0011,,0.514,0.000,0.074
+UKK,class,mucin,in-training,tissue-level mucin in colon pathology,249,0.0000,0.0000,,1.000,0.000,
+UKK,group,in-training,,,12249,0.2147,0.2555,0.1810,,,
+UKK,group,absent-from-training,,,1040,0.0416,0.0653,0.0416,,,
+UKK,group,ALL,,,13289,0.1931,0.2317,0.1701,,,
+CHARITE,class,epithelial tissue,in-training,tissue-level epithelial in colon pathology,546,0.7406,0.7756,,0.004,0.679,0.951
+CHARITE,class,colorectal mucosa,absent-from-training,tissue-level colorectal mucosa in colon pathology,813,0.0934,0.1161,,0.681,0.000,0.993
+CHARITE,class,connective tissue,in-training,tissue-level connective in colon pathology,1547,0.0195,0.0224,,0.473,0.001,0.707
+CHARITE,class,muscle tissue,in-training,tissue-level muscle in colon pathology,1577,0.0001,0.0001,,0.862,0.000,0.003
+CHARITE,class,dense lymphoid aggregate,in-training,tissue-level dense lymphoid aggregate in colon pathology,434,0.3976,0.4615,,0.005,0.251,0.985
+CHARITE,class,necrotic debris,in-training,tissue-level necrotic debris in colon pathology,493,0.6700,0.8123,,0.158,0.839,0.996
+CHARITE,class,erythrocytes,in-training,tissue-level erythrocytes in colon pathology,430,0.0015,0.0017,,0.609,0.000,0.049
+CHARITE,class,mucin,in-training,tissue-level mucin in colon pathology,323,0.0000,0.0000,,1.000,0.000,
+CHARITE,group,in-training,,,5350,0.2613,0.2962,0.1754,,,
+CHARITE,group,absent-from-training,,,813,0.0934,0.1161,0.0934,,,
+CHARITE,group,ALL,,,6163,0.2403,0.2737,0.1645,,,
+KAMEDA,class,epithelial tissue,in-training,tissue-level epithelial in colon pathology,379,0.6457,0.6548,,0.000,0.498,0.949
+KAMEDA,class,colorectal mucosa,absent-from-training,tissue-level colorectal mucosa in colon pathology,356,0.0325,0.0170,,0.809,0.000,0.969
+KAMEDA,class,connective tissue,in-training,tissue-level connective in colon pathology,2445,0.0302,0.0304,,0.414,0.002,0.754
+KAMEDA,class,muscle tissue,in-training,tissue-level muscle in colon pathology,993,0.0158,0.0182,,0.758,0.000,0.376
+KAMEDA,class,dense lymphoid aggregate,in-training,tissue-level dense lymphoid aggregate in colon pathology,191,0.4890,0.4946,,0.000,0.335,0.987
+KAMEDA,class,necrotic debris,in-training,tissue-level necrotic debris in colon pathology,315,0.0164,0.0092,,0.746,0.000,0.988
+KAMEDA,class,erythrocytes,in-training,tissue-level erythrocytes in colon pathology,49,0.0002,0.0004,,0.694,0.000,0.007
+KAMEDA,class,mucin,in-training,tissue-level mucin in colon pathology,86,0.0000,0.0000,,1.000,0.000,
+KAMEDA,group,in-training,,,4458,0.1711,0.1725,0.0971,,,
+KAMEDA,group,absent-from-training,,,356,0.0325,0.0170,0.0325,,,
+KAMEDA,group,ALL,,,4814,0.1537,0.1531,0.0923,,,
+LMU,class,epithelial tissue,in-training,tissue-level epithelial in colon pathology,465,0.6930,0.7201,,0.000,0.595,0.981
+LMU,class,colorectal mucosa,absent-from-training,tissue-level colorectal mucosa in colon pathology,493,0.0911,0.0753,,0.594,0.000,1.000
+LMU,class,connective tissue,in-training,tissue-level connective in colon pathology,2278,0.0288,0.0179,,0.323,0.002,0.692
+LMU,class,muscle tissue,in-training,tissue-level muscle in colon pathology,574,0.0013,0.0002,,0.801,0.000,0.003
+LMU,class,dense lymphoid aggregate,in-training,tissue-level dense lymphoid aggregate in colon pathology,116,0.3994,0.4201,,0.017,0.253,0.992
+LMU,class,necrotic debris,in-training,tissue-level necrotic debris in colon pathology,170,0.4489,0.6726,,0.306,0.403,0.984
+LMU,class,erythrocytes,in-training,tissue-level erythrocytes in colon pathology,206,0.0002,0.0000,,0.840,0.000,0.026
+LMU,class,mucin,in-training,tissue-level mucin in colon pathology,190,0.0000,0.0000,,1.000,0.000,
+LMU,group,in-training,,,3999,0.2245,0.2616,0.1278,,,
+LMU,group,absent-from-training,,,493,0.0911,0.0753,0.0911,,,
+LMU,group,ALL,,,4492,0.2078,0.2383,0.1238,,,
+WNS,class,epithelial tissue,in-training,tissue-level epithelial in colon pathology,475,0.8718,0.8850,,0.000,0.885,0.949
+WNS,class,colorectal mucosa,absent-from-training,tissue-level colorectal mucosa in colon pathology,479,0.0361,0.0228,,0.812,0.000,0.775
+WNS,class,connective tissue,in-training,tissue-level connective in colon pathology,2785,0.0172,0.0168,,0.611,0.000,0.573
+WNS,class,muscle tissue,in-training,tissue-level muscle in colon pathology,853,0.0005,0.0005,,0.865,0.000,0.014
+WNS,class,dense lymphoid aggregate,in-training,tissue-level dense lymphoid aggregate in colon pathology,111,0.5834,0.5855,,0.000,0.424,0.980
+WNS,class,necrotic debris,in-training,tissue-level necrotic debris in colon pathology,178,0.8126,0.8799,,0.101,0.996,0.964
+WNS,class,erythrocytes,in-training,tissue-level erythrocytes in colon pathology,104,0.0012,0.0020,,0.587,0.000,0.353
+WNS,class,mucin,in-training,tissue-level mucin in colon pathology,91,0.0000,0.0000,,1.000,0.000,
+WNS,group,in-training,,,4597,0.3267,0.3385,0.1462,,,
+WNS,group,absent-from-training,,,479,0.0361,0.0228,0.0361,,,
+WNS,group,ALL,,,5076,0.2903,0.2990,0.1358,,,

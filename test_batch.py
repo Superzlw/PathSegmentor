@@ -23,7 +23,11 @@
     边长超过 1500 按 1024 切块"的规则：1024 的 tile 放大到 2048，切成 4 块 1024 分别推理（--upscale 2 --crop 1024），
     概率图拼回后用区域平均缩回 1024，与你自己模型的结果在同一张 tile、同一分辨率上算 Dice。
   - prompt：论文模板 "<结构>-level <对象> in <部位> pathology"，结构 tissue、部位 colon、对象用 OBJECTS 里的名字
-    （去掉与 "tissue-level" 重复的 "tissue"）。--trained-prompts 改用训练原文，不是官方用法，只作分析。
+    （去掉与 "tissue-level" 重复的 "tissue"）。官方只规定模板，不规定对象用什么词：
+    --objects names（默认）= 你的类名，与你的模型问同一个问题；
+    --objects pathseg = 同一模板、部位仍是 colon，对象换成 PathSeg 训练集里同一概念的组织级用词（stroma、
+    smooth muscle cells、blood、mucoid material…），作敏感性分析。两组都报告，不按测试结果挑。
+    --trained-prompts 照搬训练原文（部位是 breast/unspecified），不是官方用法，只作分析。
   - 阈值 0.5；每个 prompt 单独推理（与论文评测一致：一个样本一条 prompt）。
 --gate 决定 prompt 发给哪几块 patch：
   tile（默认）= 类别在整张 tile 的 GT 里出现，就发给全部 4 块。模型拿到的信息与你的模型相同
@@ -82,6 +86,15 @@ OBJECTS = {
     "erythrocytes":             "erythrocytes",
     "mucin":                    "mucin",
 }
+
+
+
+def pathseg_object(c):
+    """--objects pathseg：训练原文里的对象词，如 "tissue-level stroma in breast pathology" -> "stroma"；
+    训练集里没有的概念（colorectal mucosa）仍用 OBJECTS。"""
+    tp = CLASSES[c][1]
+    return tp.split("-level ", 1)[1].rsplit(" in ", 1)[0] if tp else OBJECTS[c]
+
 
 NAMES = list(CLASSES)
 IN_TRAIN = [c for c in NAMES if CLASSES[c][1] is not None]
@@ -228,6 +241,12 @@ def selftest():
     assert set(OBJECTS) == set(NAMES)
     assert build_prompts("tissue-level {name} in colon pathology", False)["epithelial tissue"] == \
         "tissue-level epithelial in colon pathology"
+    ps = build_prompts("tissue-level {name} in colon pathology", False, "pathseg")
+    assert ps["connective tissue"] == "tissue-level stroma in colon pathology"
+    assert ps["muscle tissue"] == "tissue-level smooth muscle cells in colon pathology"
+    assert ps["necrotic debris"] == "tissue-level necrosis or debris in colon pathology"
+    assert ps["mucin"] == "tissue-level mucoid material in colon pathology"
+    assert ps["colorectal mucosa"] == "tissue-level colorectal mucosa in colon pathology"
 
     assert example_prompt("Part_2_1211_pathology_bile+duct_nuclei+connective.png") == \
         "nuclei-level connective in bile duct pathology"
@@ -423,11 +442,12 @@ def predict(seg, image, prompts, upscale, crop=CROP, gate=None):
     return acc.cpu().numpy()
 
 
-def build_prompts(template, trained):
+def build_prompts(template, trained, objects="names"):
     out = {}
     for c in NAMES:
         tp = CLASSES[c][1]
-        out[c] = tp if (trained and tp) else template.format(name=OBJECTS[c])
+        obj = pathseg_object(c) if objects == "pathseg" else OBJECTS[c]
+        out[c] = tp if (trained and tp) else template.format(name=obj)
     return out
 
 
@@ -569,6 +589,9 @@ def main():
                          "patch = 只发给 GT 含该类的 patch（论文按 patch 评测的方式）")
     ap.add_argument("--template", default="tissue-level {name} in colon pathology",
                     help="官方 prompt 模板 <结构>-level <对象> in <部位> pathology；{name} 换成 OBJECTS 里的对象名")
+    ap.add_argument("--objects", choices=["names", "pathseg"], default="names",
+                    help="模板里的 <对象>：names = 你的类名（默认，与你的模型同一个问题）；"
+                         "pathseg = PathSeg 训练集里同一概念的组织级用词，部位仍是 colon（敏感性分析）")
     ap.add_argument("--trained-prompts", action="store_true",
                     help="in-training 组改用 PathSeg 训练原文（非官方用法，只作分析；见 CLASSES）")
     ap.add_argument("--all-prompts", action="store_true", help="每张图都发全部 8 个 prompt，额外报告含误检的 Dice")
@@ -617,7 +640,7 @@ def main():
     if a.limit:
         pairs = sorted(random.Random(0).sample(pairs, min(a.limit, len(pairs))))
 
-    prompts = build_prompts(a.template, a.trained_prompts)
+    prompts = build_prompts(a.template, a.trained_prompts, a.objects)
     vocab = load_vocab()
     in_vocab = {c: prompts[c].lower() in vocab for c in NAMES}
     os.makedirs(a.out, exist_ok=True)
@@ -627,7 +650,8 @@ def main():
         json.dump({**vars(a), "prompts": prompts, "prompt_in_training_vocab": in_vocab, "n_pairs": len(pairs),
                    "unpaired_images": len(only_img), "unpaired_masks": len(only_mask)},
                   f, ensure_ascii=False, indent=2)
-    print(f"{len(pairs)} 张图；upscale {a.upscale}；crop {a.crop}；gate {a.gate}；prompt（* = PathSeg 训练原文）:")
+    print(f"{len(pairs)} 张图；upscale {a.upscale}；crop {a.crop}；gate {a.gate}；objects {a.objects}；"
+          "prompt（* = PathSeg 训练原文）:")
     for c in NAMES:
         print(f"  {'*' if in_vocab[c] else ' '} {c:<26}{prompts[c]}")
 
