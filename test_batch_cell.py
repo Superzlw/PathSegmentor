@@ -15,13 +15,11 @@
 推理 = test_batch.py（组织评测）的官方用法：0.5 um/px 的 tile 放大到 40x（--upscale 2），按 1024 切块推理，
 概率图拼回后区域平均缩回 1024；每个 prompt 单独跑解码器（同一块只算一次图像编码器）。
 
-prompt：论文模板 "<结构>-level <对象> in <部位> pathology"，默认 "nuclei-level {name} in unspecified pathology"
-（GT 是细胞核轮廓；切片的器官不分，所以部位用训练集里有的 "unspecified"）：
-  --objects names（默认）= 我们的类名（和我们的模型问同一个问题）；
-  --objects pathseg      = 同一模板，对象换成 PathSeg 训练集里同一概念的细胞核级用词（neutrophil、lymphocyte、
-                           connective、mitotic figure…）；epithelial cells = epithelial ∪ neoplastic 两个 prompt；
-  --trained-prompts      = 照搬训练原文（CoNIC 结肠 / 乳腺），只作分析。
-8 个类在 PathSeg 训练集里都有细胞核级的对应（CLASSES 第三列）。
+prompt = 官方用法（README：prompt 描述要分割的结构和器官，模板 "<结构>-level <对象> in <器官> pathology"，
+示例 mask 的文件名就是合适的 prompt，如 'nuclei-level connective in bile duct pathology'）：
+  "nuclei-level <对象> in <--organ> pathology"，结构 = nuclei（GT 是细胞核轮廓），对象 = PathSeg 训练集里这个
+  细胞类的细胞核级用词（CLASSES 第三列：neutrophil、epithelial ∪ neoplastic、lymphocyte、plasma cells、eosinophil、
+  connective、mitotic figure、macrophage —— 8 个类都有），器官默认 "unspecified"（切片的器官不分；训练集里有这个词）。
 
 在 PathSegmentor 仓库根目录、pathsegmentor 环境里运行：
   python test_batch_cell.py --selftest                          # 只测打分逻辑，几秒，不用 GPU
@@ -75,7 +73,7 @@ PAL = np.array([[0, 0, 0], [255, 255, 0], [255, 0, 0], [0, 0, 255], [0, 255, 255
 
 
 def pathseg_objects(c):
-    """--objects pathseg：训练原文里的对象词，如 "nuclei-level connective in colon pathology" -> "connective"。"""
+    """官方 prompt 的对象词 = 训练原文里的对象词，如 "nuclei-level connective in colon pathology" -> "connective"。"""
     return [p.split("-level ", 1)[1].rsplit(" in ", 1)[0] for p in CLASSES[c][2]]
 
 
@@ -147,16 +145,9 @@ def check(tiles, missing, n=50):
 
 # ---------------- 预测 ----------------
 
-def prompts_for(template, trained, objects):
-    """通道 -> 这一类的 prompt 列表（多个 prompt 的概率取最大值）。"""
-    out = {}
-    for c in CHANNELS:
-        if trained:
-            out[c] = list(CLASSES[c][2])
-        else:
-            objs = pathseg_objects(c) if objects == "pathseg" else [CLASSES[c][0]]
-            out[c] = [template.format(name=o) for o in objs]
-    return out
+def prompts_for(organ):
+    """通道 -> 这一类的官方 prompt 列表（多个 prompt 的概率取最大值）。"""
+    return {c: [f"nuclei-level {o} in {organ} pathology" for o in pathseg_objects(c)] for c in CHANNELS}
 
 
 def predict_tile(seg, image, prompts, upscale, crop, thr):
@@ -285,12 +276,11 @@ def selftest(im):
                 assert h["binary"]["model"]["pq"] > 0.99 and h["typed"]["model"]["mpq"] > 0.99, h["typed"]["model"]
             else:
                 assert s["macro_mean_dice"] == 0 and h["binary"]["model"]["pq"] == 0
-    t = "nuclei-level {name} in unspecified pathology"
-    assert prompts_for(t, False, "names")[6] == ["nuclei-level stromal cells in unspecified pathology"]
-    assert prompts_for(t, False, "pathseg")[2] == ["nuclei-level epithelial in unspecified pathology",
-                                                   "nuclei-level neoplastic in unspecified pathology"]
-    assert prompts_for(t, False, "pathseg")[7] == ["nuclei-level mitotic figure in unspecified pathology"]
-    assert prompts_for(t, True, "names")[8] == ["nuclei-level macrophage in breast pathology"]
+    pr = prompts_for("unspecified")
+    assert pr[6] == ["nuclei-level connective in unspecified pathology"]
+    assert pr[2] == ["nuclei-level epithelial in unspecified pathology", "nuclei-level neoplastic in unspecified pathology"]
+    assert pr[7] == ["nuclei-level mitotic figure in unspecified pathology"]
+    assert prompts_for("colon")[3] == [CLASSES[3][2][0]]                      # colon = the CoNIC training prompt
     print("selftest OK")
 
 
@@ -305,11 +295,8 @@ def main():
     ap.add_argument("--upscale", type=int, default=2, choices=[1, 2, 3, 4],
                     help="输入放大倍数：2 = 0.5 um/px 的 tile 放大到官方要求的 40x（默认）；1 = 直接输入（非官方）")
     ap.add_argument("--crop", type=int, default=1024, help="推理切块边长（放大后的像素）；0 = 不切块（非官方）")
-    ap.add_argument("--template", default="nuclei-level {name} in unspecified pathology",
-                    help="官方 prompt 模板 <结构>-level <对象> in <部位> pathology")
-    ap.add_argument("--objects", choices=["names", "pathseg"], default="names",
-                    help="模板里的 <对象>：names = 我们的类名（默认）；pathseg = PathSeg 训练集里的细胞核级用词")
-    ap.add_argument("--trained-prompts", action="store_true", help="照搬 PathSeg 训练原文（CLASSES 第三列）")
+    ap.add_argument("--organ", default="unspecified",
+                    help='官方模板里的 <器官>："nuclei-level <对象> in <器官> pathology"（默认 unspecified）')
     ap.add_argument("--thr", type=float, default=0.5, help="概率阈值")
     ap.add_argument("--min-cell-px", type=int, default=200, help="这类 GT 像素 >= 此值的 tile 才算 present")
     ap.add_argument("--tile-size", type=int, default=1024, help="只评测这个尺寸的 tile；0 = 不限")
@@ -338,11 +325,9 @@ def main():
         return
     if not tiles:
         sys.exit("没有配对成功的 tile，先跑 --check")
-    if "{name}" not in a.template:
-        sys.exit("--template 里必须包含 {name}")
     if a.limit:
         tiles = sorted(random.Random(0).sample(tiles, min(a.limit, len(tiles))))
-    prompts = prompts_for(a.template, a.trained_prompts, a.objects)
+    prompts = prompts_for(a.organ)
     vocab = tb.load_vocab()
 
     pred_dir = os.path.join(a.out, "pred")
