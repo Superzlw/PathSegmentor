@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""PathSegmentor 组织分割批量评测（UKK_Col 数据集）。
+"""PathSegmentor 组织分割批量评测（结肠 5 个队列 + UKK 肺 LUAD/LUSC + UKK 乳腺 BRCA）。
+
+--cohort 选类别表（默认 COAD = 结肠，与以前完全相同）：COAD / LUAD / LUSC / BRCA，标签值与
+VPR_LISA_BASED/scripts/test_batch.py 的 COHORTS 相同（结肠背景 11，肺/乳腺背景 12）。肺/乳腺要同时给 --data；
+不给 --template 时模板里的部位自动取该测试集的器官（colon / lung / breast）。
 
 在 PathSegmentor 仓库根目录、pathsegmentor 环境里运行：
   python test_batch.py --selftest                          # 只测 Dice 计算逻辑，几秒，不用 GPU
@@ -11,11 +15,11 @@
 评测协议与 BiomedParse 仓库里的 test_batch.py 相同，两边结果可以逐行对照：
 每张图只对 GT 中出现的类别发 prompt，Dice 只在该类别出现的图上统计，
 衡量的是"已知目标存在时分得准不准"，不衡量"能否判断目标不存在"。
-加 --all-prompts 则每张图都发全部 8 个 prompt，额外报告把误检也算进去的 Dice（all 列）。
+加 --all-prompts 则每张图都发全部类别的 prompt，额外报告把误检也算进去的 Dice（all 列）。
 每个 prompt 单独推理（同一张图只跑一次图像编码器），prompt 之间互不影响，
 所以 --all-prompts 时 mean/pooled 两列与不加时完全相同。
 
-像素规则：未标注(0) 永远不参与计算；背景(11) 不作为类别评测，但模型在背景上的预测默认算误报；
+像素规则：未标注(0) 永远不参与计算；背景（结肠 11，肺/乳腺 12）不作为类别评测，但模型在背景上的预测默认算误报；
 加 --ignore-background 则背景像素也完全不参与计算。
 
 默认按官方推荐用法（README + 论文的数据处理）：
@@ -58,12 +62,13 @@ VOCAB_CSV = "pathseg_datasets/hierachical_labels_and_prompts.csv"   # PathSeg �
 CROP = 1024
 
 # 类别名: (mask 标签值, PathSeg 训练集里同一概念的原文 prompt；None = 训练标签里没有这个概念)
-# 训练集的 colon 组织级只有 gland / malignant lesion，所以多数对应来自别的器官（BCSS 乳腺、SegPath 不分器官），
+# 标签值 = VPR_LISA_BASED/scripts/test_batch.py 的 COHORTS（结肠 TISSUE_CLASSES / LUNG_CLASSES / BRCA_CLASSES）。
+# 结肠：训练集的 colon 组织级只有 gland / malignant lesion，所以多数对应来自别的器官（BCSS 乳腺、SegPath 不分器官），
 # "in-training" 指概念出现过，不代表在结肠上训练过。可按需替换成下面注释里的其他训练原文：
 #   epithelial tissue: "tissue-level malignant lesion in colon pathology" / "tissue-level gland in colon pathology"
 #   connective tissue: "tissue-level tumor associated stroma tissue in lung pathology"
 #   erythrocytes:      "cell-level red blood cells in unspecified pathology"
-CLASSES = {
+COAD_CLASSES = {
     "epithelial tissue":        ((1,),      "tissue-level epithelial in unspecified pathology"),
     "colorectal mucosa":        ((2,),      None),
     "connective tissue":        ((3, 4, 6), "tissue-level stroma in breast pathology"),
@@ -73,10 +78,36 @@ CLASSES = {
     "erythrocytes":             ((9,),      "tissue-level blood in breast pathology"),
     "mucin":                    ((10,),     "tissue-level mucoid material in breast pathology"),
 }
-UNANNOTATED, BACK = 0, 11
+# 肺（LUAD 和 LUSC 共用）：肺的组织级训练标签只有 WSSS4LUAD 的 3 类，其余对应来自乳腺 BCSS
+LUNG_CLASSES = {
+    "epithelial tissue":        ((1,),      "tissue-level tumor epithelial tissue in lung pathology"),
+    "connective tissue":        ((2, 6),    "tissue-level tumor associated stroma tissue in lung pathology"),
+    "necrotic debris":          ((3,),      "tissue-level necrosis or debris in breast pathology"),
+    "mucin":                    ((4,),      "tissue-level mucoid material in breast pathology"),
+    "lung tissue":              ((5,),      "tissue-level normal tissue in lung pathology"),
+    "erythrocytes":             ((7,),      "tissue-level blood in breast pathology"),
+    "bronchial mucosa":         ((8,),      None),
+    "cartilage":                ((9,),      None),
+    "mucous glands":            ((10,),     None),
+    "dense lymphoid aggregate": ((11,),     "tissue-level lymphocytic infiltrate in breast pathology"),
+}
+# 乳腺：BCSS 是乳腺组织级训练数据，除表皮外都有同器官的对应
+#   epithelial tissue 的原位癌部分（标签 3）也可对应 "tissue-level dcis in breast pathology"
+BRCA_CLASSES = {
+    "epithelial tissue":        ((1, 3),    "tissue-level tumor in breast pathology"),
+    "connective tissue":        ((2, 8),    "tissue-level stroma in breast pathology"),
+    "necrotic debris":          ((4,),      "tissue-level necrosis or debris in breast pathology"),
+    "mucin":                    ((5,),      "tissue-level mucoid material in breast pathology"),
+    "dense lymphoid aggregate": ((6,),      "tissue-level lymphocytic infiltrate in breast pathology"),
+    "fatty tissue":             ((7,),      "tissue-level fat in breast pathology"),
+    "erythrocytes":             ((9,),      "tissue-level blood in breast pathology"),
+    "epidermis":                ((10,),     None),
+    "breast parenchyma":        ((11,),     "tissue-level normal acinus or duct in breast pathology"),
+}
 
-# 官方模板里的 <对象>（"tissue-level" 已表明是组织级，所以去掉类名里重复的 "tissue"）
-OBJECTS = {
+# 官方模板里的 <对象>（"tissue-level" 已表明是组织级，所以去掉类名里重复的 "tissue"；
+# lung tissue / fatty tissue 去掉后不成词，保留全名，PathSeg 自己的标签里也有 "normal tissue" 这样的写法）
+COAD_OBJECTS = {
     "epithelial tissue":        "epithelial",
     "colorectal mucosa":        "colorectal mucosa",
     "connective tissue":        "connective",
@@ -86,6 +117,14 @@ OBJECTS = {
     "erythrocytes":             "erythrocytes",
     "mucin":                    "mucin",
 }
+SHARED_OBJECTS = {"epithelial tissue": "epithelial", "connective tissue": "connective"}
+LUNG_OBJECTS = {c: SHARED_OBJECTS.get(c, c) for c in LUNG_CLASSES}
+BRCA_OBJECTS = {c: SHARED_OBJECTS.get(c, c) for c in BRCA_CLASSES}
+
+# --cohort -> (类别表, 背景标签, 模板里的对象名, 器官词)
+COHORTS = {"COAD": (COAD_CLASSES, 11, COAD_OBJECTS, "colon"), "LUAD": (LUNG_CLASSES, 12, LUNG_OBJECTS, "lung"),
+           "LUSC": (LUNG_CLASSES, 12, LUNG_OBJECTS, "lung"), "BRCA": (BRCA_CLASSES, 12, BRCA_OBJECTS, "breast")}
+UNANNOTATED = 0
 
 
 
@@ -96,13 +135,32 @@ def pathseg_object(c):
     return tp.split("-level ", 1)[1].rsplit(" in ", 1)[0] if tp else OBJECTS[c]
 
 
-NAMES = list(CLASSES)
-IN_TRAIN = [c for c in NAMES if CLASSES[c][1] is not None]
-ABSENT = [c for c in NAMES if CLASSES[c][1] is None]
-GROUPS = {"in-training": IN_TRAIN, "absent-from-training": ABSENT, "ALL": NAMES}
+def set_cohort(name):
+    """选测试集的类别表；其余函数都读这些模块级变量。"""
+    global CLASSES, BACK, OBJECTS, NAMES, IN_TRAIN, ABSENT, GROUPS
+    CLASSES, BACK, OBJECTS, _ = COHORTS[name]
+    NAMES = list(CLASSES)
+    IN_TRAIN = [c for c in NAMES if CLASSES[c][1] is not None]
+    ABSENT = [c for c in NAMES if CLASSES[c][1] is None]
+    GROUPS = {"in-training": IN_TRAIN, "absent-from-training": ABSENT, "ALL": NAMES}
+
+
+def default_template(cohort):
+    return f"tissue-level {{name}} in {COHORTS[cohort][3]} pathology"
+
+
+def organ_mismatch(template, cohort):
+    """模板里出现了别的测试集的器官词（如 --cohort LUAD 却写 in colon pathology）就返回那个词。"""
+    own = COHORTS[cohort][3]
+    others = {o for _, _, _, o in COHORTS.values()} - {own}
+    return next((o for o in sorted(others) if f"in {o} pathology" in template), None)
+
+
+set_cohort("COAD")
 IMG_EXT = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"}
 COLORS = np.array([[230, 25, 75], [60, 180, 75], [255, 225, 25], [0, 130, 200],
-                   [245, 130, 48], [145, 30, 180], [70, 240, 240], [240, 50, 230]], np.uint8)
+                   [245, 130, 48], [145, 30, 180], [70, 240, 240], [240, 50, 230],
+                   [210, 245, 60], [170, 110, 40]], np.uint8)    # 至少与最大的类别表（肺 10 类）一样多
 NAN = float("nan")
 
 
@@ -196,6 +254,7 @@ def example_prompt(mask_file):
 
 
 def selftest():
+    set_cohort("COAD")
     m = np.array([[1, 1, 2, 0],
                   [3, 4, 6, 11],
                   [5, 5, 11, 11]])
@@ -253,8 +312,33 @@ def selftest():
     assert example_prompt("x/67test188_pathology_lung_tissue+tumor+associated+stroma+tissue.png") == \
         "tissue-level tumor associated stroma tissue in lung pathology"
     vocab = load_vocab()
-    for c in IN_TRAIN:
-        assert CLASSES[c][1] in vocab, f"不是训练原文: {CLASSES[c][1]}"
+    # 各测试集的类别表：训练原文都在 PathSeg 词表里、对象名齐全、标签不重复且不含未标注/背景、颜色够用
+    for name, (cls, back, objs, _) in COHORTS.items():
+        set_cohort(name)
+        for c in IN_TRAIN:
+            assert CLASSES[c][1] in vocab, f"{name} 不是训练原文: {CLASSES[c][1]}"
+        assert set(OBJECTS) == set(NAMES), name
+        labels = [v for ls, _ in cls.values() for v in ls]
+        assert len(labels) == len(set(labels)) and UNANNOTATED not in labels and back not in labels, name
+        assert len(cls) <= len(COLORS), name
+    set_cohort("LUAD")
+    assert BACK == 12 and ABSENT == ["bronchial mucosa", "cartilage", "mucous glands"]
+    lp = build_prompts(default_template("LUAD"), False)
+    assert lp["epithelial tissue"] == "tissue-level epithelial in lung pathology"
+    assert lp["lung tissue"] == "tissue-level lung tissue in lung pathology"
+    lps = build_prompts(default_template("LUAD"), False, "pathseg")
+    assert lps["epithelial tissue"] == "tissue-level tumor epithelial tissue in lung pathology"
+    assert lps["cartilage"] == "tissue-level cartilage in lung pathology"
+    lm = np.array([[1, 2, 6, 12], [11, 0, 5, 12]])
+    assert tile_counts(lm, np.ones(lm.shape, bool), (2, 6), valid_region(lm, False)) == (2, 7, 2)
+    assert tile_counts(lm, np.ones(lm.shape, bool), (2, 6), valid_region(lm, True)) == (2, 5, 2)   # 背景 12 不计
+    set_cohort("BRCA")
+    assert ABSENT == ["epidermis"] and CLASSES["epithelial tissue"][0] == (1, 3)
+    assert build_prompts(default_template("BRCA"), False, "pathseg")["fatty tissue"] == "tissue-level fat in breast pathology"
+    assert organ_mismatch("tissue-level {name} in colon pathology", "BRCA") == "colon"
+    assert organ_mismatch(default_template("BRCA"), "BRCA") is None
+    set_cohort("COAD")
+    assert default_template("COAD") == "tissue-level {name} in colon pathology"   # 与以前的默认相同
     print("selftest OK")
 
 
@@ -539,7 +623,7 @@ def report(per_class, groups, prompts, in_vocab, all_prompts, min_frac, out_dir,
     print("mean   = 每个问题 Dice 的平均；组那几行 = 各类 mean 的平均（macro，= 自己模型脚本的 macro_mean_dice）")
     print("pooled = 所有问题的像素合并后算一个 Dice；组那几行 = 各类 pooled 的平均（= macro_pooled_dice）")
     if all_prompts:
-        print("all    = 同 pooled，但每张图都问全部 8 类，GT 里没有的图上的误检也算进去；组那几行 = 各类 all 的平均")
+        print("all    = 同 pooled，但每张图都问全部类别，GT 里没有的图上的误检也算进去；组那几行 = 各类 all 的平均")
     print("allq   = 只有组那几行：组内所有问题 Dice 的平均，问题多的类别权重大（= all_questions_mean_dice）")
     print("in-train = PathSeg 训练标签里有这个组织概念（多数来自乳腺 BCSS 或不分器官的 SegPath）；absent = 没有")
     with open(os.path.join(out_dir, csv_name), "w", newline="") as f:
@@ -554,6 +638,7 @@ def resummarize(out_dir, min_frac):
     """不跑模型：按 min_frac 重新汇总已有的 per_tile.csv。旧版输出没有 tile_px 列时按 1024x1024 算面积占比。"""
     with open(os.path.join(out_dir, "config.json")) as f:
         cfg = json.load(f)
+    set_cohort(cfg.get("cohort", "COAD"))       # 旧版输出没有 cohort 字段 = 结肠
     all_prompts = cfg.get("all_prompts", False)
     stats = {c: new_stat() for c in NAMES}
     n_rows = no_px = 0
@@ -577,6 +662,8 @@ def resummarize(out_dir, min_frac):
 
 def main():
     ap = argparse.ArgumentParser(description="PathSegmentor 组织分割批量评测")
+    ap.add_argument("--cohort", choices=sorted(COHORTS), default="COAD",
+                    help="类别表：COAD = 结肠（默认）；LUAD / LUSC = 肺；BRCA = 乳腺")
     ap.add_argument("--data", default=DEFAULT_DATA, help="包含 image/ 和 mask/ 的目录")
     ap.add_argument("--ckpt", default=DEFAULT_CKPT, help="PathSegmentor 权重 model_state_dict.pt")
     ap.add_argument("--out", default="out/ukk_col_tissue", help="结果输出目录（不同设置请用不同目录）")
@@ -587,15 +674,16 @@ def main():
     ap.add_argument("--gate", choices=["tile", "patch"], default="tile",
                     help="tile = 类别在 tile 里出现就发给全部 patch（与你的模型信息相同，默认）；"
                          "patch = 只发给 GT 含该类的 patch（论文按 patch 评测的方式）")
-    ap.add_argument("--template", default="tissue-level {name} in colon pathology",
-                    help="官方 prompt 模板 <结构>-level <对象> in <部位> pathology；{name} 换成 OBJECTS 里的对象名")
+    ap.add_argument("--template", default=None,
+                    help="官方 prompt 模板 <结构>-level <对象> in <部位> pathology；{name} 换成 OBJECTS 里的对象名。"
+                         "默认 tissue-level {name} in <--cohort 的器官> pathology")
     ap.add_argument("--objects", choices=["names", "pathseg"], default="names",
                     help="模板里的 <对象>：names = 你的类名（默认，与你的模型同一个问题）；"
-                         "pathseg = PathSeg 训练集里同一概念的组织级用词，部位仍是 colon（敏感性分析）")
+                         "pathseg = PathSeg 训练集里同一概念的组织级用词，部位仍是该测试集的器官（敏感性分析）")
     ap.add_argument("--trained-prompts", action="store_true",
                     help="in-training 组改用 PathSeg 训练原文（非官方用法，只作分析；见 CLASSES）")
-    ap.add_argument("--all-prompts", action="store_true", help="每张图都发全部 8 个 prompt，额外报告含误检的 Dice")
-    ap.add_argument("--ignore-background", action="store_true", help="背景(11)像素也不参与计算")
+    ap.add_argument("--all-prompts", action="store_true", help="每张图都发全部类别的 prompt，额外报告含误检的 Dice")
+    ap.add_argument("--ignore-background", action="store_true", help="背景（结肠 11，肺/乳腺 12）像素也不参与计算")
     ap.add_argument("--min-frac", type=float, default=0.02,
                     help="类别 GT 面积 >= 该比例 × 整张 tile 才提问、才计分；0.02 = 自己模型 scripts/test_batch.py 的默认；"
                          "0 = GT 里有就算")
@@ -623,6 +711,14 @@ def main():
         model = load_model(a.ckpt)
         sanity(Segmenter(model, [p for _, _, p in example_pairs()]), a.thr)
         return
+    set_cohort(a.cohort)
+    if a.cohort != "COAD" and a.data == DEFAULT_DATA:
+        sys.exit(f"--cohort {a.cohort} 需要同时给 --data（默认数据是结肠 UKK_Col）")
+    if a.template is None:
+        a.template = default_template(a.cohort)
+    wrong = organ_mismatch(a.template, a.cohort)
+    if wrong:
+        sys.exit(f"--template 写的是 {wrong}，但 --cohort 是 {a.cohort}（器官应为 {COHORTS[a.cohort][3]}）")
     img_dir, msk_dir = os.path.join(a.data, "image"), os.path.join(a.data, "mask")
     if not (os.path.isdir(img_dir) and os.path.isdir(msk_dir)):
         sys.exit(f"{a.data} 下没有 image/ 和 mask/ 子目录。QuPath 导出的是 <切片>/ALL/*.jpg|png，需要先像 UKK_Col 那样"
