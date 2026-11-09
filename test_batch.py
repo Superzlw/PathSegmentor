@@ -339,6 +339,19 @@ def selftest():
     assert organ_mismatch(default_template("BRCA"), "BRCA") is None
     set_cohort("COAD")
     assert default_template("COAD") == "tissue-level {name} in colon pathology"   # 与以前的默认相同
+
+    # --stain-ref：LAB 往返、白/黑的 LAB 值、匹配到自己的统计量 = 原图、匹配后组织统计量 = 参考
+    rng = np.random.default_rng(0)
+    img = rng.integers(0, 256, (64, 64, 3), dtype=np.uint8)
+    assert np.abs(lab2rgb(rgb2lab(img)).astype(int) - img).max() <= 1
+    w, k = rgb2lab(np.array([[[255, 255, 255], [0, 0, 0]]], np.uint8))[0]
+    assert abs(w[0] - 100) < 0.1 and abs(w[1]) < 0.1 and abs(w[2]) < 0.1 and abs(k[0]) < 0.1
+    tis = rng.integers(90, 200, (64, 64, 3), dtype=np.uint8)
+    tis[..., 1] //= 2                                        # 偏紫的"组织"，全部是组织像素
+    assert np.abs(reinhard(tis, lab_stats([tis])).astype(int) - tis).max() <= 2
+    ref_img = (tis.astype(np.float32) * 0.85).astype(np.uint8)
+    out = reinhard(tis, lab_stats([ref_img]))
+    assert np.allclose(rgb2lab(out).mean((0, 1)), lab_stats([ref_img])[0], atol=1.0)
     print("selftest OK")
 
 
@@ -526,6 +539,51 @@ def predict(seg, image, prompts, upscale, crop=CROP, gate=None):
     return acc.cpu().numpy()
 
 
+# ---------------- 颜色归一化（--stain-ref，诊断用，非官方流程） ----------------
+# Reinhard：把 tile 组织像素的 LAB 均值/标准差匹配到参考图（如 examples/ 里同器官的训练样本）。sRGB(D65) <-> CIELAB。
+_M = np.array([[0.4124564, 0.3575761, 0.1804375], [0.2126729, 0.7151522, 0.0721750],
+               [0.0193339, 0.1191920, 0.9503041]], np.float32)
+_WHITE = np.array([0.95047, 1.0, 1.08883], np.float32)
+_D = 6 / 29
+
+
+def rgb2lab(rgb):
+    c = rgb.astype(np.float32) / 255
+    c = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+    t = (c @ _M.T) / _WHITE
+    f = np.where(t > _D ** 3, np.cbrt(t), t / (3 * _D ** 2) + 4 / 29)
+    return np.stack([116 * f[..., 1] - 16, 500 * (f[..., 0] - f[..., 1]), 200 * (f[..., 1] - f[..., 2])], -1)
+
+
+def lab2rgb(lab):
+    fy = (lab[..., 0] + 16) / 116
+    f = np.stack([fy + lab[..., 1] / 500, fy, fy - lab[..., 2] / 200], -1)
+    t = np.where(f > _D, f ** 3, 3 * _D ** 2 * (f - 4 / 29)) * _WHITE
+    c = np.clip(t @ np.linalg.inv(_M).T, 0, 1)
+    c = np.where(c <= 0.0031308, 12.92 * c, 1.055 * c ** (1 / 2.4) - 0.055)
+    return np.clip(np.round(c * 255), 0, 255).astype(np.uint8)
+
+
+def tissue_pixels(rgb):
+    """组织像素：饱和度 (max-min)/max > 20/255（去掉白色背景）；组织太少就用全部像素。"""
+    mx, mn = rgb.max(-1).astype(np.float32), rgb.min(-1).astype(np.float32)
+    t = (mx - mn) / np.maximum(mx, 1) > 20 / 255
+    return t if t.mean() >= 0.01 else np.ones_like(t)
+
+
+def lab_stats(images):
+    """多张参考图的组织像素合并后的 LAB 均值、标准差。"""
+    px = np.concatenate([rgb2lab(im)[tissue_pixels(im)] for im in images])
+    return px.mean(0), px.std(0)
+
+
+def reinhard(rgb, ref):
+    lab = rgb2lab(rgb)
+    src = lab[tissue_pixels(rgb)]
+    mu, sd = src.mean(0), np.maximum(src.std(0), 1e-6)
+    return lab2rgb((lab - mu) / sd * ref[1] + ref[0])
+
+
 def build_prompts(template, trained, objects="names"):
     out = {}
     for c in NAMES:
@@ -684,6 +742,9 @@ def main():
                     help="in-training 组改用 PathSeg 训练原文（非官方用法，只作分析；见 CLASSES）")
     ap.add_argument("--all-prompts", action="store_true", help="每张图都发全部类别的 prompt，额外报告含误检的 Dice")
     ap.add_argument("--ignore-background", action="store_true", help="背景（结肠 11，肺/乳腺 12）像素也不参与计算")
+    ap.add_argument("--stain-ref", nargs="+", default=[], metavar="PNG",
+                    help="诊断用（非官方流程）：推理前把每张 tile 的颜色按 Reinhard（LAB 均值/标准差）匹配到这些参考图，"
+                         "例如仓库 examples/ 里同器官的训练样本；GT 和计分不变")
     ap.add_argument("--min-frac", type=float, default=0.02,
                     help="类别 GT 面积 >= 该比例 × 整张 tile 才提问、才计分；0.02 = 自己模型 scripts/test_batch.py 的默认；"
                          "0 = GT 里有就算")
@@ -739,12 +800,21 @@ def main():
     prompts = build_prompts(a.template, a.trained_prompts, a.objects)
     vocab = load_vocab()
     in_vocab = {c: prompts[c].lower() in vocab for c in NAMES}
+    ref = None
+    if a.stain_ref:
+        missing = [p for p in a.stain_ref if not os.path.isfile(p)]
+        if missing:
+            sys.exit(f"--stain-ref 找不到：{missing}")
+        ref = lab_stats([np.array(Image.open(p).convert("RGB")) for p in a.stain_ref])
+        print(f"颜色归一化（诊断用，非官方）：参考 {len(a.stain_ref)} 张，组织 LAB 均值 {np.round(ref[0], 1).tolist()} "
+              f"标准差 {np.round(ref[1], 1).tolist()}")
     os.makedirs(a.out, exist_ok=True)
     if a.save_vis:
         os.makedirs(os.path.join(a.out, "vis"), exist_ok=True)
     with open(os.path.join(a.out, "config.json"), "w") as f:
         json.dump({**vars(a), "prompts": prompts, "prompt_in_training_vocab": in_vocab, "n_pairs": len(pairs),
-                   "unpaired_images": len(only_img), "unpaired_masks": len(only_mask)},
+                   "unpaired_images": len(only_img), "unpaired_masks": len(only_mask),
+                   "stain_ref_lab": None if ref is None else [ref[0].tolist(), ref[1].tolist()]},
                   f, ensure_ascii=False, indent=2)
     print(f"{len(pairs)} 张图；upscale {a.upscale}；crop {a.crop}；gate {a.gate}；objects {a.objects}；"
           "prompt（* = PathSeg 训练原文）:")
@@ -772,6 +842,8 @@ def main():
             if a.tile_size and image.shape[:2] != (a.tile_size, a.tile_size):
                 skipped.append((ip, f"不是 {a.tile_size}x{a.tile_size}"))
                 continue
+            if ref is not None:                  # 只改模型的输入（对比图也显示归一化后的图），GT 不变
+                image = reinhard(image, ref)
             valid = valid_region(mask, a.ignore_background)
             present = [c for c in NAMES
                        if is_present(int(np.isin(mask, CLASSES[c][0]).sum()), mask.size, a.min_frac)]
