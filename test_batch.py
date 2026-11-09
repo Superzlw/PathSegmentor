@@ -45,6 +45,7 @@ summary.csv（每类与各组的汇总）、vis/（--save-vis 时的对比图：
 """
 import argparse
 import csv
+import io
 import json
 import logging
 import os
@@ -352,6 +353,21 @@ def selftest():
     ref_img = (tis.astype(np.float32) * 0.85).astype(np.uint8)
     out = reinhard(tis, lab_stats([ref_img]))
     assert np.allclose(rgb2lab(out).mean((0, 1)), lab_stats([ref_img])[0], atol=1.0)
+
+    # --control：做成我们 tile 的样子后尺寸不变、GT 是缩小后的 2x2 拼接、JPEG 只引入很小的误差
+    ex = np.zeros((8, 8, 3), np.uint8)
+    ex[:4] = 200
+    gt8 = np.zeros((8, 8), bool)
+    gt8[:4, :2] = True
+    t_png, g_png = ukk_like(ex, gt8)
+    assert t_png.shape == (8, 8, 3) and g_png.shape == (8, 8)
+    assert (t_png[:2] == 200).all() and (t_png[2:4] == 0).all() and (t_png[4:6] == 200).all()
+    assert g_png.tolist() == np.tile(np.array([[1, 0, 0, 0], [1, 0, 0, 0], [0] * 4, [0] * 4], bool), (2, 2)).tolist()
+    yy, xx = np.mgrid[0:64, 0:64]
+    big = np.stack([100 + xx, 80 + yy, 150 + (xx + yy) // 2], -1).astype(np.uint8)   # 平滑渐变，像真实组织那样
+    t_jpg, _ = ukk_like(big, np.zeros((64, 64), bool), 75)
+    t_ref, _ = ukk_like(big, np.zeros((64, 64), bool))
+    assert t_jpg.shape == t_ref.shape and 0 < np.abs(t_jpg.astype(int) - t_ref).mean() < 5
     print("selftest OK")
 
 
@@ -634,6 +650,51 @@ def sanity(seg, thr):
     print("这些示例来自 PathSeg 的数据集；平均 Dice 很低（例如 < 0.3）说明权重或环境有问题，先别跑正式评测。")
 
 
+def ukk_like(image, gt, quality=None):
+    """--control：把 40x 的 1024 示例做成我们 tile 的样子。面积平均缩小一半（0.5 um/px，同 QuPath 按下采样渲染），
+    quality 不为 None 时再按该质量存一次 JPEG（我们 QuPath 导出的 tile 是 75），然后 2x2 拼成 1024 的 tile，
+    这样正式流程的"放大 2 倍、切 4 块、拼回、缩小"每一步都会走到。GT 用最近邻同样缩小、拼接。"""
+    h, w = gt.shape
+    small = Image.fromarray(image).resize((w // 2, h // 2), Image.BOX)
+    if quality is not None:
+        buf = io.BytesIO()
+        small.save(buf, "JPEG", quality=quality)
+        buf.seek(0)
+        small = Image.open(buf).convert("RGB")
+    g = np.array(Image.fromarray(gt.astype(np.uint8) * 255).resize((w // 2, h // 2), Image.NEAREST)) > 0
+    return np.tile(np.array(small), (2, 2, 1)), np.tile(g, (2, 2))
+
+
+def control(seg, thr, quality):
+    """仓库自带示例（PathSeg 各数据集的测试图）：原样直接输入 vs 做成我们 tile 的样子后走正式评测的同一条流程。"""
+    pairs = example_pairs()
+    if not pairs:
+        sys.exit("examples/ 下没有找到示例图，确认在仓库根目录运行")
+    cols = ["direct", "ours_png", f"ours_jpg{quality}"]
+    print(f"\n{len(pairs)} 个示例；direct = 原样输入（= --sanity）；ours_png = 缩到 0.5 um/px、2x2 拼成 1024 后按正式设置"
+          f"（--upscale 2 --crop {CROP}，同一个 prompt 发给 4 块）；ours_jpg{quality} = 同上但缩小后存成 JPEG {quality}")
+    print(f"{'':>2}" + "".join(f"{c:>12}" for c in cols) + "  prompt")
+    by_level = {}
+    for ip, mp, prompt in pairs:
+        image = np.array(Image.open(ip).convert("RGB"))
+        gt = np.array(Image.open(mp).convert("L")) > 0
+        if image.shape[:2] != gt.shape:              # 与 sanity 相同的处理
+            image = np.array(Image.fromarray(image).resize(gt.shape[::-1], Image.BICUBIC))
+        ds = []
+        pred = predict(seg, image, [prompt], upscale=1)[0] > thr
+        ds.append(dice(int((pred & gt).sum()), int(pred.sum()), int(gt.sum())))
+        for q in (None, quality):
+            tile, g = ukk_like(image, gt, q)
+            pred = predict(seg, tile, [prompt], upscale=2, crop=CROP)[0] > thr     # 与正式评测同一个调用
+            ds.append(dice(int((pred & g).sum()), int(pred.sum()), int(g.sum())))
+        by_level.setdefault(prompt.split("-level")[0], []).append(ds)
+        print(f"{'':>2}" + "".join(f"{d:12.4f}" for d in ds) + f"  {prompt}")
+    for lvl, rows in sorted(by_level.items()):
+        m = np.nanmean(np.array(rows), 0)
+        print(f"{lvl:>8}: " + "  ".join(f"{c} {v:.4f}" for c, v in zip(cols, m)) + f"  ({len(rows)} 个)")
+    print("三列接近 = 缩小、JPEG、放大切块拼回这些处理都不是 PathSegmentor 在我们数据上失败的原因，区别只在图像本身。")
+
+
 def save_vis(path, image, mask, valid, probs, prompted, thr):
     gt = np.full(image.shape, 128, np.uint8)      # 灰 = 不参与计算
     gt[valid] = 0                                  # 黑 = 参与计算的背景
@@ -757,6 +818,11 @@ def main():
     ap.add_argument("--save-vis", type=int, default=0, help="保存前 N 张的对比图（原图 | GT | 预测）")
     ap.add_argument("--check", action="store_true", help="只检查数据，不加载模型")
     ap.add_argument("--sanity", action="store_true", help="只在仓库自带示例上验证模型，不读评测数据")
+    ap.add_argument("--control", action="store_true",
+                    help="对照实验：仓库自带示例原样输入 vs 做成我们 tile 的样子（0.5 um/px、2x2 拼成 1024、可选 JPEG）"
+                         "后走正式评测的同一条流程；不读评测数据")
+    ap.add_argument("--control-jpeg-quality", type=int, default=75,
+                    help="--control 的 JPEG 质量；75 = 我们 QuPath 导出 tile 的质量")
     ap.add_argument("--selftest", action="store_true", help="只测 Dice 计算逻辑")
     a = ap.parse_args()
 
@@ -771,6 +837,10 @@ def main():
     if a.sanity:
         model = load_model(a.ckpt)
         sanity(Segmenter(model, [p for _, _, p in example_pairs()]), a.thr)
+        return
+    if a.control:
+        model = load_model(a.ckpt)
+        control(Segmenter(model, [p for _, _, p in example_pairs()]), a.thr, a.control_jpeg_quality)
         return
     set_cohort(a.cohort)
     if a.cohort != "COAD" and a.data == DEFAULT_DATA:
