@@ -904,11 +904,12 @@ def run_psview(a):
                 w.writerow(["image", "mask", "prompt", "gt_px", "pred_px", "inter", "dice"])
             for img, ms in tqdm(todo, dynamic_ncols=True):
                 image = np.array(Image.open(os.path.join(a.psview, "test", img)).convert("RGB"))
-                if image.shape[:2] != (CROP, CROP):
-                    sys.exit(f"{img}: {image.shape[:2]}，ps_view 里应全是 {CROP}x{CROP}")
+                # 正式的 ps_view 全是 1024x1024；build_ps_view.py --keep_size 的诊断变体保持原尺寸，整张图一次推理
                 probs = predict(seg, image, [p for _, p in ms], upscale=1, crop=0)
                 for (m, p), pr in zip(ms, probs):
                     gt = np.array(Image.open(os.path.join(a.psview, "test_mask", m))) > 0
+                    if gt.shape != pr.shape:
+                        sys.exit(f"{m}: GT {gt.shape} 和图像 {pr.shape} 尺寸不同")
                     inter, pp, g, d = psview_dice(pr > a.thr, gt)
                     w.writerow([img, m, p, g, pp, inter, f"{d:.6f}"])
                 f.flush()
