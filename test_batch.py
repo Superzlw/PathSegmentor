@@ -11,6 +11,8 @@ VPR_LISA_BASED/scripts/test_batch.py 的 COHORTS 相同（结肠背景 11，肺/
   CUDA_VISIBLE_DEVICES=1 python test_batch.py --sanity     # 用仓库自带的示例图(带 GT)确认模型加载和推理正常
   CUDA_VISIBLE_DEVICES=1 python test_batch.py --limit 50   # 随机抽 50 张试跑
   CUDA_VISIBLE_DEVICES=1 python test_batch.py              # 全量
+  CUDA_VISIBLE_DEVICES=1 python test_batch.py --psview <ps_view 目录> --out out/psview_<数据集>
+      # 复现论文：在 PS 坐标系的测试集上评测（VPR_LISA_BASED/scripts/build_ps_view.py 生成，见文件末尾 --psview 一节）
 
 评测协议与 BiomedParse 仓库里的 test_batch.py 相同，两边结果可以逐行对照：
 每张图只对 GT 中出现的类别发 prompt，Dice 只在该类别出现的图上统计，
@@ -368,6 +370,33 @@ def selftest():
     t_jpg, _ = ukk_like(big, np.zeros((64, 64), bool), 75)
     t_ref, _ = ukk_like(big, np.zeros((64, 64), bool))
     assert t_jpg.shape == t_ref.shape and 0 < np.abs(t_jpg.astype(int) - t_ref).mean() < 5
+
+    # --psview：prompt 与 create_single_dataset.py 从文件名拼出的相同；Dice 与 grounding_evaluation.py 相同
+    assert psview_prompt("test1_pathology_colon.png", "cell+dysplastic+malignant+epithelial") == \
+        "cell-level dysplastic malignant epithelial in colon pathology"
+    assert psview_prompt("testA1_pathology_colon.png", "tissue+gland") == "tissue-level gland in colon pathology"
+    assert psview_prompt("P1D1010104-3_pathology_prostate.png", "tissue+prostate+healthy+glands") == \
+        "tissue-level prostate healthy glands in prostate pathology"
+    assert psview_prompt("image00_pathology_unspecified.png", "nuclei+nuclei") == \
+        "nuclei-level nuclei in unspecified pathology"
+    g4 = np.zeros((4, 4), bool)
+    g4[:2] = True
+    p4 = np.zeros((4, 4), bool)
+    p4[1:3] = True
+    inter, pp, gg, d = psview_dice(p4, g4)
+    assert (inter, pp, gg) == (4, 8, 8) and abs(d - 0.5) < 1e-6
+    assert psview_dice(np.zeros((2, 2), bool), np.zeros((2, 2), bool))[3] == 0.0      # 官方：空对空也是 0
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        for sub in ("test", "test_mask"):
+            os.makedirs(os.path.join(td, sub))
+        Image.new("RGB", (4, 4)).save(os.path.join(td, "test", "a1-2_pathology_colon.png"))
+        for t in ("cell+inflammatory", "cell+muscle"):
+            Image.new("L", (4, 4)).save(os.path.join(td, "test_mask", f"a1-2_pathology_colon_{t}.png"))
+        s = psview_samples(td)
+        assert list(s) == ["a1-2_pathology_colon.png"]
+        assert [q for _, q in s["a1-2_pathology_colon.png"]] == ["cell-level inflammatory in colon pathology",
+                                                                  "cell-level muscle in colon pathology"]
     print("selftest OK")
 
 
@@ -777,6 +806,115 @@ def resummarize(out_dir, min_frac):
            out_dir, f"summary_minfrac{min_frac:g}.csv")
 
 
+# ---------------- --psview：在 PS 坐标系的测试集上复现论文 ----------------
+# 测试集由 VPR_LISA_BASED/scripts/build_ps_view.py 按 PS 自己的预处理规则生成（每个数据集的做法都用论文 Table A1 的
+# 计数核对过）：<目录>/test/<id>_pathology_<site>.png（1024x1024）+ test_mask/<id>_pathology_<site>_<target>.png（0/1）。
+# 这里的做法 = 官方评测（scripts/eval.sh -> entry.py evaluate -> datasets/evaluation/grounding_evaluation.py）：
+# 每个 mask 文件 = 一个样本，prompt 按 create_single_dataset.py 从文件名拼出；整张 1024 图一次推理（不放大、不切块；
+# Segmenter 与官方 interactive_infer_image 逐像素一致，见 --sanity）；sigmoid > 0.5；Dice = 2|P∩G| / (|P| + |G| + 1e-6)；
+# 数据集的分数 = 所有样本的平均（论文 Table A6 / A17 的口径）。
+
+def psview_prompt(image_file, target_field):
+    """= create_single_dataset.py：图像 <id>_<mod>_<site>.png + mask 文件名最后一段 target（如 cell+healthy+epithelial）
+    -> 'cell-level healthy epithelial in <site> <mod>'。"""
+    stem = os.path.splitext(image_file)[0].split("_")
+    mod, site = stem[-2], stem[-1].replace("+", " ").replace("-", " ")
+    target = target_field.replace("+", " ")
+    scale = target.split(" ")[0]
+    return f"{scale}-level {target[len(scale) + 1:]} in {site} {mod}"
+
+
+def psview_samples(d):
+    """ps_view 目录 -> {图像文件: [(mask 文件, prompt)]}；mask 文件 = <图像文件去掉 .png>_<target>.png。"""
+    img_dir, msk_dir = os.path.join(d, "test"), os.path.join(d, "test_mask")
+    if not (os.path.isdir(img_dir) and os.path.isdir(msk_dir)):
+        sys.exit(f"{d} 下没有 test/ 和 test_mask/（先跑 VPR_LISA_BASED/scripts/build_ps_view.py）")
+    images = {f for f in os.listdir(img_dir) if f.endswith(".png")}
+    samples = {}
+    for f in sorted(os.listdir(msk_dir)):
+        if not f.endswith(".png"):
+            continue
+        parts = os.path.splitext(f)[0].split("_")
+        img = "_".join(parts[:-1]) + ".png"
+        if img not in images:
+            sys.exit(f"mask {f} 找不到原图 {img}")
+        samples.setdefault(img, []).append((f, psview_prompt(img, parts[-1])))
+    return samples
+
+
+def psview_dice(pred, gt):
+    """= grounding_evaluation.py：(交集, |P|, |G|, 2|P∩G| / (|P| + |G| + 1e-6))。"""
+    inter, p, g = int((pred & gt).sum()), int(pred.sum()), int(gt.sum())
+    return inter, p, g, 2.0 * inter / (p + g + 1e-6)
+
+
+def psview_report(out_dir):
+    with open(os.path.join(out_dir, "per_sample.csv"), newline="") as f:
+        rows = list(csv.DictReader(f))
+    by = {}
+    for r in rows:
+        by.setdefault(r["prompt"], []).append(float(r["dice"]))
+    allv = [float(r["dice"]) for r in rows]
+    with open(os.path.join(out_dir, "summary.csv"), "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["prompt", "n", "mean_dice"])
+        for p in sorted(by):
+            w.writerow([p, len(by[p]), f"{np.mean(by[p]):.4f}"])
+        w.writerow(["ALL", len(allv), f"{np.mean(allv):.4f}" if allv else ""])
+    if not allv:
+        print("没有样本")
+        return
+    print(f"\n{len(allv)} 个样本（图 x prompt），平均 Dice {np.mean(allv):.4f}（= 论文里这个数据集的分数）")
+    for p in sorted(by):
+        print(f"  {np.mean(by[p]):.4f}  n={len(by[p]):<6} {p}")
+    print(f"结果在 {out_dir}/（per_sample.csv、summary.csv）")
+
+
+def run_psview(a):
+    from tqdm import tqdm
+    samples = psview_samples(a.psview)
+    images = sorted(samples)
+    if a.limit:
+        images = sorted(random.Random(0).sample(images, min(a.limit, len(images))))
+    os.makedirs(a.out, exist_ok=True)
+    per = os.path.join(a.out, "per_sample.csv")
+    done = set()
+    if os.path.exists(per):                       # 断点续跑：已经写进 per_sample.csv 的样本不再跑
+        with open(per, newline="") as f:
+            done = {r["mask"] for r in csv.DictReader(f)}
+    todo = [(i, [(m, p) for m, p in samples[i] if m not in done]) for i in images]
+    todo = [(i, ms) for i, ms in todo if ms]
+    prompts = sorted({p for i in images for _, p in samples[i]})
+    n_samples = sum(len(samples[i]) for i in images)
+    with open(os.path.join(a.out, "config.json"), "w") as f:
+        json.dump({"psview": a.psview, "ckpt": a.ckpt, "thr": a.thr, "limit": a.limit, "n_images": len(images),
+                   "n_samples": n_samples, "prompts": prompts,
+                   "protocol": "整张 1024 图一次推理（不放大、不切块）；sigmoid > thr；每个 (图, prompt) 一个 Dice，取平均"},
+                  f, ensure_ascii=False, indent=2)
+    print(f"{a.psview}: {len(images)} 张图、{n_samples} 个样本；已完成 {len(done)}，"
+          f"这次要跑 {sum(len(ms) for _, ms in todo)} 个。prompt：")
+    for p in prompts:
+        print(f"  {p}")
+    if todo:
+        seg = Segmenter(load_model(a.ckpt), prompts)
+        new = not os.path.exists(per)
+        with open(per, "a", newline="") as f:
+            w = csv.writer(f)
+            if new:
+                w.writerow(["image", "mask", "prompt", "gt_px", "pred_px", "inter", "dice"])
+            for img, ms in tqdm(todo, dynamic_ncols=True):
+                image = np.array(Image.open(os.path.join(a.psview, "test", img)).convert("RGB"))
+                if image.shape[:2] != (CROP, CROP):
+                    sys.exit(f"{img}: {image.shape[:2]}，ps_view 里应全是 {CROP}x{CROP}")
+                probs = predict(seg, image, [p for _, p in ms], upscale=1, crop=0)
+                for (m, p), pr in zip(ms, probs):
+                    gt = np.array(Image.open(os.path.join(a.psview, "test_mask", m))) > 0
+                    inter, pp, g, d = psview_dice(pr > a.thr, gt)
+                    w.writerow([img, m, p, g, pp, inter, f"{d:.6f}"])
+                f.flush()
+    psview_report(a.out)
+
+
 # ---------------- 主流程 ----------------
 
 def main():
@@ -824,6 +962,9 @@ def main():
     ap.add_argument("--control-jpeg-quality", type=int, default=75,
                     help="--control 的 JPEG 质量；75 = 我们 QuPath 导出 tile 的质量")
     ap.add_argument("--selftest", action="store_true", help="只测 Dice 计算逻辑")
+    ap.add_argument("--psview", metavar="DIR", default=None,
+                    help="复现论文：在 PS 坐标系的测试集（build_ps_view.py 生成的 ps_view/<数据集>/）上按官方口径评测；"
+                         "要同时给 --out；可用 --limit、--thr；中断后同一个 --out 再跑会续上")
     a = ap.parse_args()
 
     if not os.path.exists(CONFIG):
@@ -841,6 +982,11 @@ def main():
     if a.control:
         model = load_model(a.ckpt)
         control(Segmenter(model, [p for _, _, p in example_pairs()]), a.thr, a.control_jpeg_quality)
+        return
+    if a.psview:
+        if a.out == ap.get_default("out"):
+            sys.exit("--psview 要同时给 --out（例如 out/psview_glas）")
+        run_psview(a)
         return
     set_cohort(a.cohort)
     if a.cohort != "COAD" and a.data == DEFAULT_DATA:
